@@ -67,6 +67,7 @@ pub enum TokenKind {
     Newline,
 
     LineComment,
+    MultilineComment { terminated: bool },
 
     Slash,
     Star,
@@ -123,14 +124,11 @@ pub enum TokenKind {
     Question,
     QuestionQuestion,
 
+    StringLiteral { terminated: bool },
+    NumberLiteral,
+    Identifier,
+
     Unknown,
-    /*
-    Blockcomments terminated?
-
-    Ident,
-
-    Literal
-    */
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -229,13 +227,13 @@ impl Cursor<'_> {
             '|' => match self.peek() {
                 '=' => {
                     self.eat();
-                    Token::new(TokenKind::AmpEqual, "|=".to_owned(), 2)
+                    Token::new(TokenKind::BarEqual, "|=".to_owned(), 2)
                 },
                 '|' => {
                     self.eat();
                     Token::new(TokenKind::BarBar, "||".to_owned(), 2)
                 },
-                _ => Token::new(TokenKind::Bang, "|".to_owned(), 1),
+                _ => Token::new(TokenKind::Bar, "|".to_owned(), 1),
             },
             '>' => match self.peek() {
                 '=' => {
@@ -329,8 +327,10 @@ impl Cursor<'_> {
             ']' => Token::new(TokenKind::RBracket, "]".to_owned(), 1),
             '{' => Token::new(TokenKind::LBrace, "{".to_owned(), 1),
             '}' => Token::new(TokenKind::RBrace, "}".to_owned(), 1),
-
-            _ => Token::new(TokenKind::Unknown, String::from(c), 1),
+            '"' => self.lex_string_literal(&c),
+            '0'..='9' => self.lex_number_literal(&c),
+            c if is_literal(&c) => self.lex_identifier(&c),
+            _ => panic!("unknown match encountered when every possible char should be handled!")
         }
     }
 
@@ -377,6 +377,58 @@ impl Cursor<'_> {
             '\n' => Some(Token::new(TokenKind::Newline, "\n".to_owned(), 1)),
             _ => None, 
         }
+    }
+
+    fn lex_string_literal(&mut self, char: &char) -> Token {
+        let mut lexeme = String::from(*char);
+        let mut terminated = false;
+
+        while self.peek() != '"' && !self.is_eof() {
+            if self.peek() == '\\' && self.peek_n(1) == '"' {
+                lexeme.push(self.eat());
+            }
+            lexeme.push(self.eat());
+        }
+
+        if !self.is_eof() {
+            lexeme.push(self.eat());
+            terminated = true;
+        }
+
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::StringLiteral{terminated}, lexeme, len)
+    }
+
+    fn lex_number_literal(&mut self, char: &char) -> Token {
+        let mut had_dot = false;
+        let mut lexeme = String::from(*char);
+
+        // todo: handle bases
+
+        while ('0'..='9').contains(&self.peek()) || self.peek() == '_' {
+            lexeme.push(self.eat());
+            if !had_dot && self.peek() == '.' {
+                had_dot = true;
+                lexeme.push(self.eat());
+            }
+        }
+
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::NumberLiteral, lexeme, len)
+    }
+
+    fn lex_identifier(&mut self, char: &char) -> Token {
+        let mut lexeme = String::from(*char);
+
+        // todo: _ is another kind of token and _ has to be 
+        // followed by a literal or number to be a valid identifier
+
+        while is_literal(&self.peek()) {
+            lexeme.push(self.eat());
+        }
+
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::Identifier, lexeme, len)
     }
 }
 

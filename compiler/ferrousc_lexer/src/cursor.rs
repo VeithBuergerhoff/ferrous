@@ -19,7 +19,7 @@ impl Cursor<'_> {
         self.chars().nth(0).unwrap_or(EOF_CHAR)
     }
 
-    pub(crate) fn peekn(&self, n: usize) -> char {
+    pub(crate) fn peek_n(&self, n: usize) -> char {
         self.chars().nth(n).unwrap_or(EOF_CHAR)
     }
 
@@ -76,16 +76,16 @@ mod test {
     }
 
     #[test]
-    fn test_peekn() {
+    fn test_peek_n() {
         let c = Cursor::new("1234");
-        assert_eq!(c.peekn(0), '1');
-        assert_eq!(c.peekn(1), '2');
+        assert_eq!(c.peek_n(0), '1');
+        assert_eq!(c.peek_n(1), '2');
         let mut c = c;
         c.eat();
         let c = c;
-        assert_eq!(c.peekn(1), '3');
-        assert_eq!(c.peekn(2), '4');
-        assert_eq!(c.peekn(3), EOF_CHAR);
+        assert_eq!(c.peek_n(1), '3');
+        assert_eq!(c.peek_n(2), '4');
+        assert_eq!(c.peek_n(3), EOF_CHAR);
     }
 
     #[test]
