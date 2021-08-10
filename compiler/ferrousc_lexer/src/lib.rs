@@ -125,7 +125,9 @@ pub enum TokenKind {
     QuestionQuestion,
 
     StringLiteral { terminated: bool },
+    CharLiteral { terminated: bool },
     NumberLiteral { base: Base, has_digits: bool},
+
     Identifier,
 
     Unknown,
@@ -336,6 +338,7 @@ impl Cursor<'_> {
             '{' => Token::new(TokenKind::LBrace, "{".to_owned(), 1),
             '}' => Token::new(TokenKind::RBrace, "}".to_owned(), 1),
             '"' => self.lex_string_literal(&c),
+            '\'' => self.lex_char_literal(&c),
             '0'..='9' => self.lex_number_literal(&c),
             c if is_literal(&c) => self.lex_identifier(&c),
             _ => panic!("unknown match encountered when every possible char should be handled!")
@@ -405,6 +408,26 @@ impl Cursor<'_> {
 
         let len = lexeme.chars().count();
         Token::new(TokenKind::StringLiteral{terminated}, lexeme, len)
+    }
+
+    fn lex_char_literal(&mut self, char: &char) -> Token {
+        let mut lexeme = String::from(*char);
+        let mut terminated = false;
+
+        if self.peek() != '\'' && !self.is_eof()  {
+            if self.peek() == '\\' {
+                lexeme.push(self.eat());
+            }
+            lexeme.push(self.eat());
+        }
+
+        if self.peek() == '\'' {
+            terminated = true;
+            lexeme.push(self.eat());
+        }
+
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::CharLiteral{terminated}, lexeme, len)
     }
 
     fn lex_number_literal(&mut self, char: &char) -> Token {
