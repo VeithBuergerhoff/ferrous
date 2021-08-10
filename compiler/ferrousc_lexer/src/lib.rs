@@ -3,8 +3,8 @@ use cursor::Cursor;
 mod cursor;
 
 const WHITESPACE_CHARS: [char; 23] = [
-    ' ',          // space
-    '\t', // tab
+    ' ',        // space
+    '\t',       // tab
     '\u{000B}', // vertical tab
     '\u{000C}', // form feed
     '\u{00A0}', // no break space
@@ -183,13 +183,8 @@ impl Cursor<'_> {
 
         match c {
             '/' => match self.peek() {
-                '/' => {
-                    self.eat();
-                    let mut lexeme = "//".to_owned();
-                    lexeme.push_str(&self.lex_to_eol());
-                    let len = lexeme.chars().count();
-                    Token::new(TokenKind::LineComment, lexeme, len)
-                },
+                '/' => self.lex_line_comment(),
+                '*' => self.lex_multiline_comment(),
                 _ => Token::new(TokenKind::Slash, "/".to_owned(), 1),
             },
             '*' => match self.peek() {
@@ -518,6 +513,35 @@ impl Cursor<'_> {
 
         let len = lexeme.chars().count();
         Token::new(TokenKind::NumberLiteral{base: Base::Hexadecimal, has_digits}, lexeme, len)
+    }
+
+    fn lex_multiline_comment(&mut self) -> Token {
+        self.eat();
+        let mut lexeme = "/*".to_owned();
+        let mut terminated = false;
+        loop {
+            match (self.peek(), self.peek_n(1)) {
+                ('*', '/') => {
+                    terminated = true;
+                    lexeme.push(self.eat());
+                    lexeme.push(self.eat());
+                    break;
+                },
+                (_, _) if self.is_eof() => break,
+                (_, _) => lexeme.push(self.eat()),
+            }
+        }
+        
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::MultilineComment{terminated}, lexeme, len)
+    }
+
+    fn lex_line_comment(&mut self) -> Token {
+        self.eat();
+        let mut lexeme = "//".to_owned();
+        lexeme.push_str(&self.lex_to_eol());
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::LineComment, lexeme, len)
     }
 
     fn lex_identifier(&mut self, char: &char) -> Token {
