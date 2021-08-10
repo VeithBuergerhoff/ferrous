@@ -9,8 +9,8 @@ I did think about streaming, but I'm too shy and English is not my first languag
 If I get a sufficient amount of requests to stream, I might reconsider.
 
 Roadmap (not ordered):
-- [ ] Build a [Lexer](https://en.wikipedia.org/wiki/Lexical_analysis) (WIP)
-- [ ] Build a [Parser](https://en.wikipedia.org/wiki/Parsing)
+- [x] Build a [Lexer](https://en.wikipedia.org/wiki/Lexical_analysis)
+- [ ] Build a [Parser](https://en.wikipedia.org/wiki/Parsing) (WIP)
 - [ ] Build an [Optimizer](https://en.wikipedia.org/wiki/Optimizing_compiler)
 - [ ] Emit [LLVM assembly](https://llvm.org/docs/LangRef.html)
 - [ ] Emit custom assembly code similar to [Java bytecode](https://en.wikipedia.org/wiki/Java_bytecode)
