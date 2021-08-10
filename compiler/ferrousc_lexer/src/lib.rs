@@ -34,7 +34,7 @@ const NEWLINE_CHARS: [char; 2] = [
 ];
 
 /// does not include whitespace or newline characters!
-const NON_LITERAL_CHARS: [char; 24] = [
+const NON_LITERAL_CHARS: [char; 26] = [
     '+',
     '-',
     '*',
@@ -59,6 +59,8 @@ const NON_LITERAL_CHARS: [char; 24] = [
     '}',
     '~',
     '?',
+    '\'',
+    '"',
 ];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
