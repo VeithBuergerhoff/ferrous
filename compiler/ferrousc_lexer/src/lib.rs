@@ -125,10 +125,18 @@ pub enum TokenKind {
     QuestionQuestion,
 
     StringLiteral { terminated: bool },
-    NumberLiteral,
+    NumberLiteral { base: Base, has_digits: bool},
     Identifier,
 
     Unknown,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Base {
+    Binary,
+    Hexadecimal,
+    Octal,
+    Decimal,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -400,21 +408,91 @@ impl Cursor<'_> {
     }
 
     fn lex_number_literal(&mut self, char: &char) -> Token {
-        let mut had_dot = false;
-        let mut lexeme = String::from(*char);
+        match (char, self.peek()) {
+            ('0', 'b') => self.lex_binary(char),
+            ('0', 'o') => self.lex_octal(char),
+            ('0', 'x') => self.lex_hexadecimal(char),
+            (_, _) => self.lex_decimal(char),
+        }
+    }
 
-        // todo: handle bases
+    fn lex_binary(&mut self, c: &char) -> Token {
+        let mut lexeme = String::from(*c);
+        lexeme.push(self.eat());
+        let mut has_digits = false;
 
-        while ('0'..='9').contains(&self.peek()) || self.peek() == '_' {
-            lexeme.push(self.eat());
-            if !had_dot && self.peek() == '.' {
-                had_dot = true;
-                lexeme.push(self.eat());
+        loop {
+            match self.peek() {
+                '_' => lexeme.push(self.eat()),
+                '0' | '1' => {
+                    has_digits = true;
+                    lexeme.push(self.eat());
+                },
+                _ => break,
             }
         }
 
         let len = lexeme.chars().count();
-        Token::new(TokenKind::NumberLiteral, lexeme, len)
+        Token::new(TokenKind::NumberLiteral{base: Base::Binary, has_digits}, lexeme, len)
+    }
+
+    fn lex_octal(&mut self, c: &char) -> Token {
+        let mut lexeme = String::from(*c);       
+        lexeme.push(self.eat());
+        let mut has_digits = false;
+
+        loop {
+            match self.peek() {
+                '_' => lexeme.push(self.eat()),
+                '0'..='7' => {
+                    has_digits = true;
+                    lexeme.push(self.eat());
+                },
+                _ => break,
+            }
+        }
+
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::NumberLiteral{base: Base::Octal, has_digits}, lexeme, len)
+    }
+
+    fn lex_decimal(&mut self, c: &char) -> Token {
+        let mut lexeme = String::from(*c);
+        let mut had_dot = false;
+        // todo: scientific notation for floating point
+        loop {
+            match self.peek() {
+                '_' | '0'..='9' => lexeme.push(self.eat()),
+                '.' if !had_dot => {
+                    had_dot = true;
+                    lexeme.push(self.eat());
+                },
+                _ => break,
+            }
+        }
+
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::NumberLiteral{base: Base::Decimal, has_digits: true}, lexeme, len)
+    }
+
+    fn lex_hexadecimal(&mut self, c: &char) -> Token {
+        let mut lexeme = String::from(*c);
+        lexeme.push(self.eat());
+        let mut has_digits = false;
+
+        loop {
+            match self.peek() {
+                '_' => lexeme.push(self.eat()),
+                '0'..='9' | 'a'..='f' | 'A'..='F' => {
+                    has_digits = true;
+                    lexeme.push(self.eat());
+                },
+                _ => break,
+            }
+        }
+
+        let len = lexeme.chars().count();
+        Token::new(TokenKind::NumberLiteral{base: Base::Hexadecimal, has_digits}, lexeme, len)
     }
 
     fn lex_identifier(&mut self, char: &char) -> Token {
