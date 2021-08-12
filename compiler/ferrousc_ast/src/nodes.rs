@@ -2,39 +2,29 @@ use ferrousc_ast_proc_macros::*;
 
 use ferrousc_lexer::Token;
 
-pub trait Trivia {}
+pub trait Node {}
 
-pub struct WhitespaceTrivia {
-    pub whitespace_token: Token,
-}
-impl Trivia for WhitespaceTrivia {}
+pub trait Trivia : Node {}
 
-pub struct NewlineTrivia {
-    pub newline_token: Token,
-}
-impl Trivia for NewlineTrivia {}
-
-macro_rules! trivia_fn {
-    ($name:ident) => { 
-        fn get_trivia(&self) -> &Vec<Box<dyn Trivia>> { 
-            &self.trivia 
-        }
-    }
-}
-
-macro_rules! node {
-    ($name:ident) => { 
-        impl SyntaxNode for $name { 
-            trivia_fn!($name);
-        } 
-    }
-}
-
-pub trait SyntaxNode {
+pub trait SyntaxNode : Node {
     fn get_trivia(&self) -> &Vec<Box<dyn Trivia>>;
 }
 
-#[node]  // TODO: build accesors for fields and ::new() method
+pub trait Expression : SyntaxNode {}
+
+pub trait Statement : SyntaxNode  {}
+
+#[trivia]
+pub struct WhitespaceTrivia {
+    pub whitespace_token: Token,
+}
+
+#[trivia]
+pub struct NewlineTrivia {
+    pub newline_token: Token,
+}
+
+#[node]
 pub struct Identifier {
     pub identifier_token: Token,
     trivia: Vec<Box<dyn Trivia>>,
@@ -64,26 +54,9 @@ pub struct CompilationUnit {
 
 // expressions
 
-pub trait Expression : SyntaxNode {}
-
-macro_rules! expr {
-    ($name:ident) => { 
-        impl Expression for $name {} 
-    }
-}
-
 // statements
 
-pub trait Statement : SyntaxNode  {}
-
-macro_rules! stat {
-    ($name:ident) => { 
-        impl Statement for $name {} 
-    }
-}
-
-
-#[stat]
+#[statement]
 pub struct VariableDefinitionStatement {
     pub let_token: Token,
     pub mut_token: Option<Token>,

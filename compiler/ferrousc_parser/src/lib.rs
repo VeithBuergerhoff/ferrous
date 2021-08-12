@@ -1,5 +1,4 @@
 mod parser;
-mod cursor;
 
 use ferrousc_ast::nodes::*;
 use ferrousc_lexer::Token;
