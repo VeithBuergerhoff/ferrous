@@ -1,5 +1,5 @@
 [package]
-name = "ferrousc_main"
+name = "ferrousc_ast"
 version = "0.1.0"
 edition = "2018"
 
@@ -7,4 +7,4 @@ edition = "2018"
 
 [dependencies]
 ferrousc_lexer = { path = "../ferrousc_lexer" }
-ferrousc_parser = { path = "../ferrousc_parser" }
+ferrousc_ast_proc_macros = { path = "../ferrousc_ast_proc_macros" }
