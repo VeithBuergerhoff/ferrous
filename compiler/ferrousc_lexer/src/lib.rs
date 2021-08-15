@@ -93,6 +93,9 @@ pub enum TokenKind {
     LessLess,
     EqualEqual,
 
+    EqualGreater,
+    MinusGreater,
+
     Equal,
     PlusEqual,
     MinusEqual,
@@ -131,6 +134,16 @@ pub enum TokenKind {
     NumberLiteral { base: Base, has_digits: bool},
 
     Identifier,
+
+    LetKeyword,
+    MutKeyword,
+    MatchKeyword,
+    IfKeyword,
+    ElseKeyword,
+    WhileKeyword,
+    FunctionKeyword,
+    ReturnKeyword,
+    BreakKeyword,
 
     Unknown,
 }
@@ -214,6 +227,10 @@ impl Cursor<'_> {
                     self.eat();
                     Token::new(TokenKind::MinusEqual, "-=".to_owned(), 2)
                 },
+                '>' => {
+                    self.eat();
+                    Token::new(TokenKind::MinusGreater, "->".to_owned(), 2)
+                },
                 '-' => {
                     self.eat();
                     Token::new(TokenKind::MinusMinus, "--".to_owned(), 2)
@@ -281,6 +298,10 @@ impl Cursor<'_> {
                 '=' => {
                     self.eat();
                     Token::new(TokenKind::EqualEqual, "==".to_owned(), 2)
+                },
+                '>' => {
+                    self.eat();
+                    Token::new(TokenKind::EqualGreater, "=>".to_owned(), 2)
                 },
                 _ => Token::new(TokenKind::Equal, "=".to_owned(), 1),
             },
@@ -554,8 +575,28 @@ impl Cursor<'_> {
             lexeme.push(self.eat());
         }
 
+        let mut kind = TokenKind::Identifier;
+        if let Some(keyword) = bake_keyword(&lexeme) {
+            kind = keyword;
+        }
+
         let len = lexeme.chars().count();
-        Token::new(TokenKind::Identifier, lexeme, len)
+        Token::new(kind, lexeme, len)
+    }
+}
+
+fn bake_keyword(identifier: &str) -> Option<TokenKind> {
+    use TokenKind::*;
+    match identifier {
+        "let"       => Some(LetKeyword),
+        "mut"       => Some(MutKeyword),
+        "match"     => Some(MatchKeyword),
+        "if"        => Some(IfKeyword),
+        "else"      => Some(ElseKeyword),
+        "fn"        => Some(FunctionKeyword),
+        "return"    => Some(ReturnKeyword),
+        "break"     => Some(BreakKeyword),
+        _ => None,
     }
 }
 
