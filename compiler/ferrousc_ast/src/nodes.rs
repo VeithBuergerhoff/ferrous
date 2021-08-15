@@ -47,7 +47,6 @@ pub struct EqualsValue {
 
 #[node]
 pub struct CompilationUnit {
-    pub trailin_trivia: Vec<Box<dyn Trivia>>,
     pub statements: Vec<Box<dyn Statement>>,
     pub trivia: Vec<Box<dyn Trivia>>,
 }

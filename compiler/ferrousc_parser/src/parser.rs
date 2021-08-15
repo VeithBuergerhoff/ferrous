@@ -31,7 +31,22 @@ impl Parser {
 
 impl Parser {
     pub fn parse(&mut self) -> CompilationUnit {
-        CompilationUnit { trailin_trivia: vec![], statements: vec![], trivia: self.eat_trivia() }
+        let trivia = self.eat_trivia();
+        let statements = self.parse_statements();
+        CompilationUnit { statements, trivia }
+    }
+
+    fn parse_statements(&mut self) -> Vec<Box<dyn Statement>> {
+        let statements = vec![];
+        use TokenKind;
+        while let Some(token) = self.peek() {
+            match token.kind {
+                
+                _ => break, // eat error node
+            }
+        }
+
+        statements
     }
 
     fn eat_trivia(&mut self) -> Vec<Box<dyn Trivia>> {
