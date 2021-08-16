@@ -3,7 +3,6 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{ItemStruct, parse_macro_input};
 
-// TODO: build accesors for fields and ::new() method
 #[proc_macro_attribute]
 pub fn node(_attr: TokenStream, item: TokenStream) -> TokenStream {  
     let struct_node = parse_macro_input!(item as ItemStruct);   
@@ -13,7 +12,19 @@ pub fn node(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #struct_node
 
         impl Node for #name {}
-        impl SyntaxNode for #name { 
+        impl SyntaxNode for #name {} 
+    );
+    code.into()
+}
+
+#[proc_macro_attribute]
+pub fn triviated(_attr: TokenStream, item: TokenStream) -> TokenStream {  
+    let struct_node = parse_macro_input!(item as ItemStruct);   
+    let name = struct_node.clone().ident;
+
+    let code = quote!(
+        #struct_node
+        impl #name { 
             fn get_trivia(&self) -> &Vec<Box<dyn Trivia>> { 
                 &self.trivia 
             }
@@ -31,7 +42,11 @@ pub fn trivia(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #struct_node
 
         impl Node for #name {} 
-        impl Trivia for #name {} 
+        impl Trivia for #name {
+            fn get_value(&self) -> &Token {
+                &self.trivia_token
+            }
+        } 
     );
 
     code.into()
@@ -46,11 +61,7 @@ pub fn statement(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #struct_node
 
         impl Node for #name {}
-        impl SyntaxNode for #name { 
-            fn get_trivia(&self) -> &Vec<Box<dyn Trivia>> { 
-                &self.trivia 
-            }
-        } 
+        impl SyntaxNode for #name {} 
         impl Statement for #name {} 
     );
 
@@ -65,12 +76,6 @@ pub fn expression(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let code = quote!(
         #struct_node
 
-        impl Node for #name {}
-        impl SyntaxNode for #name { 
-            fn get_trivia(&self) -> &Vec<Box<dyn Trivia>> { 
-                &self.trivia 
-            }
-        } 
         impl Expression for #name {} 
     );
 

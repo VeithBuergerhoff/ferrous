@@ -1,12 +1,14 @@
 use ferrousc_lexer::tokenize;
+use ferrousc_parser::generate_ast;
 
 pub fn run() {
-    for token in tokenize(r#"
-        fn test(nica_dicy: i32, _char: char) {
-            // test
-            call_function(52.2);
-        }
-    "#) {
+    let test_src = r#"
+        let mut test: aha;
+    "#;
+
+    for token in tokenize(test_src) {
         println!("{:?}", token);
     }
+
+    println!("{:?}", generate_ast(tokenize(test_src)));
 }
