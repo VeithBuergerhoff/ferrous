@@ -1,7 +1,7 @@
 use ferrousc_ast::nodes::*;
 use ferrousc_lexer::{Token, TokenKind};
 
-static ASSIGNMENT_TOKENS: [TokenKind; 2] = [
+const ASSIGNMENT_TOKENS: [TokenKind; 2] = [
     TokenKind::Equal, 
     TokenKind::QuestionQuestionEquals
 ];
@@ -103,7 +103,7 @@ impl Parser {
 
         let equals_token = self.parse_token();
         let expression = self.parse_expression();
-        
+
         Some(EqualsValue{ equals_token, expression })
     }
 
