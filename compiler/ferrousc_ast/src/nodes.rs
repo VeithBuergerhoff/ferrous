@@ -1,115 +1,57 @@
-use ferrousc_ast_proc_macros::*;
-
 use ferrousc_lexer::Token;
-use std::fmt;
 
-pub trait Node {}
-
-pub trait Trivia : Node {
-    fn get_value(&self) -> &Token;
+#[derive(Debug)]
+pub enum Expr {
+    Literal { kind: LiteralKind }
 }
 
-impl fmt::Debug for dyn Trivia {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Trivia {{ token: {:?} }}", self.get_value())
+#[derive(Debug)]
+pub enum Stat {
+    VarDefinition {     
+        let_token: SyntaxToken,
+        mut_token: Option<SyntaxToken>,
+        identifier: Identifier,
+        type_id: Option<TypeId>,
+        initial_value: Option<EqualsValue>,
+        semicolon_token: SyntaxToken,
     }
 }
 
-pub trait SyntaxNode : Node {}
-
-pub trait Expression : SyntaxNode {}
-
-impl fmt::Debug for dyn Expression {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Expression")
-    }
+#[derive(Debug)]
+pub enum LiteralKind {
+    Number { number_literal: SyntaxToken }
 }
 
-pub trait Statement : SyntaxNode  {}
-
-impl fmt::Debug for dyn Statement {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "Statement")
-    }
-}
-
-#[node]
-#[triviated]
 #[derive(Debug)]
 pub struct SyntaxToken {
     pub token: Token,
-    pub trivia: Vec<Box<dyn Trivia>>,
+    pub trivia: Vec<Trivia>,
 }
 
-#[trivia]
 #[derive(Debug)]
-pub struct WhitespaceTrivia {
+pub struct Trivia {
     pub trivia_token: Token,
 }
 
-#[trivia]
-#[derive(Debug)]
-pub struct NewlineTrivia {
-    pub trivia_token: Token,
-}
-
-#[trivia]
-#[derive(Debug)]
-pub struct LineCommentTrivia {
-    pub trivia_token: Token,
-}
-
-#[trivia]
-#[derive(Debug)]
-pub struct MultilineCommentTrivia {
-    pub trivia_token: Token,
-}
-
-#[node]
 #[derive(Debug)]
 pub struct Identifier {
-    pub identifier_token: SyntaxToken,
+    pub identifier: SyntaxToken,
 }
 
-#[node]
 #[derive(Debug)]
 pub struct TypeId {
     pub colon_token: SyntaxToken,
     pub type_name: Identifier,
 }
 
-#[node]
 #[derive(Debug)]
 pub struct EqualsValue {
     pub equals_token: SyntaxToken,
-    pub expression: Box<dyn Expression>,
+    pub expression: Expr,
 }
 
-#[node]
-#[triviated]
 #[derive(Debug)]
 pub struct CompilationUnit {
-    pub statements: Vec<Box<dyn Statement>>,
-    pub trivia: Vec<Box<dyn Trivia>>,
-}
-
-// expressions
-
-#[node]
-#[expression]
-pub struct NumberLiteralExpression {
-    pub literal_token: SyntaxToken,
-}
-
-// statements
-
-#[statement]
-#[derive(Debug)]
-pub struct VariableDefinitionStatement {
-    pub let_token: SyntaxToken,
-    pub mut_token: Option<SyntaxToken>,
-    pub identifier: Identifier,
-    pub type_id: Option<TypeId>,
-    pub initial_value: Option<EqualsValue>,
-    pub semicolon_token: SyntaxToken,
+    pub leading_trivia: Vec<Trivia>,
+    pub statements: Vec<Stat>,
 }

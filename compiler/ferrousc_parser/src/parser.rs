@@ -38,10 +38,10 @@ impl Parser {
     pub fn parse(&mut self) -> CompilationUnit {
         let trivia = self.eat_trivia();
         let statements = self.parse_statements();
-        CompilationUnit { statements, trivia }
+        CompilationUnit { leading_trivia: trivia, statements }
     }
 
-    fn parse_statements(&mut self) -> Vec<Box<dyn Statement>> {
+    fn parse_statements(&mut self) -> Vec<Stat> {
         let mut statements = vec![];
         while self.peek().is_some() {
             statements.push(self.parse_statement());
@@ -50,7 +50,7 @@ impl Parser {
         statements
     }
 
-    fn parse_statement(&mut self) -> Box<dyn Statement> {
+    fn parse_statement(&mut self) -> Stat {
         let next = self.peek();
         /*  
         if next.is_none() {
@@ -71,7 +71,7 @@ impl Parser {
         }
     }
 
-    fn parse_var_declaration(&mut self) -> Box<dyn Statement> {
+    fn parse_var_declaration(&mut self) -> Stat {
         let let_token = self.parse_token();
 
         let mut_token = if is_some_and_kind(self.peek(), TokenKind::MutKeyword) {
@@ -93,7 +93,7 @@ impl Parser {
             SyntaxToken{ token: self.peek().unwrap(), trivia: self.eat_trivia() }
         };
 
-        Box::new(VariableDefinitionStatement{ let_token, mut_token, identifier, type_id, initial_value, semicolon_token })
+        Stat::VarDefinition{ let_token, mut_token, identifier, type_id, initial_value, semicolon_token }
     }
 
     fn parse_equals_value(&mut self) -> Option<EqualsValue> {
@@ -107,17 +107,17 @@ impl Parser {
         Some(EqualsValue{ equals_token, expression })
     }
 
-    fn parse_expression(&mut self) -> Box<dyn Expression> {
-        Box::new(NumberLiteralExpression{ literal_token: self.parse_token() })
+    fn parse_expression(&mut self) -> Expr {
+        Expr::Literal{ kind: LiteralKind::Number{ number_literal: self.parse_token() } }
     }
 
     fn parse_identifier(&mut self) -> Identifier {
         if is_some_and_kind(self.peek(), TokenKind::Identifier) {
-            Identifier{ identifier_token: self.parse_token() }
+            Identifier{ identifier: self.parse_token() }
         } 
         else { 
             // missing token error
-            Identifier{ identifier_token: SyntaxToken{ token: self.peek().unwrap(), trivia: self.eat_trivia() } }
+            Identifier{ identifier: SyntaxToken{ token: self.peek().unwrap(), trivia: self.eat_trivia() } }
         }
     }
 
@@ -139,29 +139,16 @@ impl Parser {
         SyntaxToken{ token: self.eat().unwrap(), trivia: self.eat_trivia() }
     }
 
-    fn eat_trivia(&mut self) -> Vec<Box<dyn Trivia>> {
-        let mut vec = Vec::<Box<dyn Trivia>>::new();
+    fn eat_trivia(&mut self) -> Vec<Trivia> {
+        let mut vec: Vec<Trivia> = vec![];
         while let Some(trivia_token) = self.peek() {
             match trivia_token.kind {
-                TokenKind::Whitespace => {
+                TokenKind::Whitespace
+                | TokenKind::Newline
+                | TokenKind::LineComment 
+                | TokenKind::MultilineComment{..} => {
                     self.eat();
-                    let boxed = Box::new(WhitespaceTrivia{trivia_token});
-                    vec.push(boxed);
-                },
-                TokenKind::Newline => {
-                    self.eat();
-                    let boxed = Box::new(NewlineTrivia{trivia_token});
-                    vec.push(boxed);
-                },
-                TokenKind::LineComment => {
-                    self.eat();
-                    let boxed = Box::new(LineCommentTrivia{trivia_token});
-                    vec.push(boxed);
-                },
-                TokenKind::MultilineComment{..} => {
-                    self.eat();
-                    let boxed = Box::new(MultilineCommentTrivia{trivia_token});
-                    vec.push(boxed);
+                    vec.push(Trivia{ trivia_token });
                 },
                 _ => break,
             }
