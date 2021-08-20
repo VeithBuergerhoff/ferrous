@@ -61,6 +61,8 @@ impl Parser {
 
         match next.unwrap().kind {
             TokenKind::LetKeyword => self.parse_var_declaration(),
+            TokenKind::LBrace => self.parse_block_statement(),
+            TokenKind::IfKeyword => self.parse_if_statement(),
             _ => {
                 let _unexpected_token = self.eat();
                 let statement = self.parse_statement();
@@ -69,6 +71,41 @@ impl Parser {
                 statement
             }
         }
+    }
+
+    fn parse_if_statement(&mut self) -> Stat {        
+        let if_token = self.parse_token();
+
+        let expression = self.parse_expression();
+        let statement = self.parse_statement();
+        
+        let else_statement = self.parse_else_statement();
+
+        Stat::If{if_token, expression, statement: Box::new(statement), else_statement}
+    }
+
+    fn parse_else_statement(&mut self) -> Box<Option<Stat>> { 
+        if is_some_and_kind(self.peek(), TokenKind::ElseKeyword) {        
+            let else_token = self.parse_token();
+            let statement = self.parse_statement();
+            Box::new(Some(Stat::Else{else_token, statement: Box::new(statement)}))
+        }
+        else {
+            Box::new(None)
+        }
+    }
+
+    fn parse_block_statement(&mut self) -> Stat {        
+        let mut statements = vec![];
+        let l_brace = self.parse_token();
+
+        while !is_some_and_kind(self.peek(), TokenKind::RBrace) {
+            statements.push(self.parse_statement());
+        }
+
+        let r_brace = self.parse_expected_token(TokenKind::RBrace);
+
+        Stat::Block{l_brace, statements, r_brace}
     }
 
     fn parse_var_declaration(&mut self) -> Stat {

@@ -14,7 +14,22 @@ pub enum Stat {
         type_id: Option<TypeId>,
         initial_value: Option<EqualsValue>,
         semicolon_token: SyntaxToken,
-    }
+    },
+    Block {        
+        l_brace: SyntaxToken,
+        statements: Vec<Stat>,
+        r_brace: SyntaxToken,
+    },
+    If {        
+        if_token: SyntaxToken,
+        expression: Expr,
+        statement: Box<Stat>,
+        else_statement: Box<Option<Stat>>,
+    },
+    Else {        
+        else_token: SyntaxToken,
+        statement: Box<Stat>,
+    },
 }
 
 #[derive(Debug)]
