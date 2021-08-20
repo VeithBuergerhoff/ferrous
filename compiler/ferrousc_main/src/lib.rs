@@ -3,9 +3,9 @@ use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
 const TEST_CODE: &str = r#"
-let mut test: aha;
+let mut test: aha = 525.52;
+let test2: aha;
 "#;
-
 
 pub fn run() {
     generate_ast(tokenize(TEST_CODE));
@@ -18,7 +18,7 @@ pub fn print() {
         println!("{:?}", token);
     }
     println!();
-    
+
     let ast = generate_ast(tokenize(TEST_CODE));
 
     println!("{:?}", ast);
@@ -50,7 +50,9 @@ pub fn print() {
                 }
                 println!("\tinitial_value: {:?},", initial_value);
                 println!("\tsemicolon: {:?}", semicolon_token);
+                println!("}}");
             },
+            #[allow(unreachable_patterns)]
             _ => println!("unknown statement!"),
         }
     })
