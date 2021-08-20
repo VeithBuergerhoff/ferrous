@@ -24,7 +24,7 @@ pub enum Stat {
         if_token: SyntaxToken,
         expression: Expr,
         statement: Box<Stat>,
-        else_statement: Box<Option<Stat>>,
+        else_statement: Option<Box<Stat>>,
     },
     Else {        
         else_token: SyntaxToken,
@@ -32,6 +32,11 @@ pub enum Stat {
     },
     Break {        
         break_token: SyntaxToken,
+        semicolon_token: SyntaxToken,
+    },
+    Return {        
+        return_token: SyntaxToken,
+        expression: Option<Expr>,
         semicolon_token: SyntaxToken,
     },
 }

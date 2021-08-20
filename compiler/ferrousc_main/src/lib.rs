@@ -10,7 +10,11 @@ let test2: aha;
 if 2 {
 
 }
+else if 5 {
+}
 else {
+    return;
+    return 5;
     break;
 }
 
@@ -100,7 +104,7 @@ fn walk(st: &Stat, tab_index: i32) {
             println!("r_brace: {:?},", r_brace);
             indent_n(tab_index);
             println!("}}");
-        }
+        },
         Stat::Break {
             break_token, 
             semicolon_token,
@@ -113,7 +117,31 @@ fn walk(st: &Stat, tab_index: i32) {
             println!("semicolon_token: {:?},", semicolon_token);
             indent_n(tab_index);
             println!("}}");
-        }
+        },
+        Stat::Return {
+            return_token, 
+            expression, 
+            semicolon_token,
+        } => {
+            indent_n(tab_index);
+            println!("Return Statement {{");
+            indent_n(tab_index + 1);
+            println!("return_token: {:?},", return_token);
+            indent_n(tab_index + 1);
+            if expression.is_some() {
+                println!("expression: {{");
+                print_expression(expression.as_ref().unwrap(), tab_index + 1);
+                indent_n(tab_index + 1);
+                println!("}}");
+            }
+            else {
+                println!("expression: none,");
+            }
+            indent_n(tab_index + 1);
+            println!("semicolon_token: {:?},", semicolon_token);
+            indent_n(tab_index);
+            println!("}}");
+        },
         Stat::If{
             if_token, 
             expression,
@@ -136,7 +164,7 @@ fn walk(st: &Stat, tab_index: i32) {
             println!("}}");
 
             if else_statement.is_some() {
-                if let Stat::Else{else_token, statement} = else_statement.as_ref().as_ref().unwrap() {
+                if let Stat::Else{else_token, statement} = else_statement.as_ref().unwrap().as_ref() {
                     indent_n(tab_index + 1);
                     println!("else: {{");
                     indent_n(tab_index + 2);
@@ -158,7 +186,7 @@ fn walk(st: &Stat, tab_index: i32) {
 
             indent_n(tab_index);
             println!("}}");
-        }
+        },
         #[allow(unreachable_patterns)]
         _ => println!("unknown statement!"),
     }

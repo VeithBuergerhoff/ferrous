@@ -64,6 +64,7 @@ impl Parser {
             TokenKind::LBrace => self.parse_block_statement(),
             TokenKind::IfKeyword => self.parse_if_statement(),
             TokenKind::BreakKeyword => self.parse_break_statement(),
+            TokenKind::ReturnKeyword => self.parse_return_statement(),
             _ => {
                 let _unexpected_token = self.eat();
                 let statement = self.parse_statement();
@@ -72,6 +73,19 @@ impl Parser {
                 statement
             }
         }
+    }
+
+    fn parse_return_statement(&mut self) -> Stat {        
+        let return_token = self.parse_token();
+        let expression = if !is_some_and_kind(self.peek(), TokenKind::Semicolon) {
+            Some(self.parse_expression())
+        }
+        else {
+            None
+        };
+        let semicolon_token = self.parse_expected_token(TokenKind::Semicolon);
+
+        Stat::Return{return_token, expression, semicolon_token}
     }
 
     fn parse_break_statement(&mut self) -> Stat {        
@@ -92,14 +106,14 @@ impl Parser {
         Stat::If{if_token, expression, statement: Box::new(statement), else_statement}
     }
 
-    fn parse_else_statement(&mut self) -> Box<Option<Stat>> { 
+    fn parse_else_statement(&mut self) -> Option<Box<Stat>> { 
         if is_some_and_kind(self.peek(), TokenKind::ElseKeyword) {        
             let else_token = self.parse_token();
             let statement = self.parse_statement();
-            Box::new(Some(Stat::Else{else_token, statement: Box::new(statement)}))
+            Some(Box::new(Stat::Else{else_token, statement: Box::new(statement)}))
         }
         else {
-            Box::new(None)
+            None
         }
     }
 
