@@ -30,6 +30,10 @@ pub enum Stat {
         else_token: SyntaxToken,
         statement: Box<Stat>,
     },
+    Break {        
+        break_token: SyntaxToken,
+        semicolon_token: SyntaxToken,
+    },
 }
 
 #[derive(Debug)]

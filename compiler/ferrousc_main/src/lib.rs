@@ -1,4 +1,4 @@
-use ferrousc_ast::nodes::{Expr, Stat, SyntaxToken};
+use ferrousc_ast::nodes::{Expr, Stat};
 use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
@@ -11,7 +11,7 @@ if 2 {
 
 }
 else {
-
+    break;
 }
 
 {
@@ -98,6 +98,19 @@ fn walk(st: &Stat, tab_index: i32) {
             }
             indent_n(tab_index + 1);
             println!("r_brace: {:?},", r_brace);
+            indent_n(tab_index);
+            println!("}}");
+        }
+        Stat::Break {
+            break_token, 
+            semicolon_token,
+        } => {
+            indent_n(tab_index);
+            println!("Break Statement {{");
+            indent_n(tab_index + 1);
+            println!("break_token: {:?},", break_token);
+            indent_n(tab_index + 1);
+            println!("semicolon_token: {:?},", semicolon_token);
             indent_n(tab_index);
             println!("}}");
         }

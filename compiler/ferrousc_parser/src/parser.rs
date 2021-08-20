@@ -63,6 +63,7 @@ impl Parser {
             TokenKind::LetKeyword => self.parse_var_declaration(),
             TokenKind::LBrace => self.parse_block_statement(),
             TokenKind::IfKeyword => self.parse_if_statement(),
+            TokenKind::BreakKeyword => self.parse_break_statement(),
             _ => {
                 let _unexpected_token = self.eat();
                 let statement = self.parse_statement();
@@ -71,6 +72,13 @@ impl Parser {
                 statement
             }
         }
+    }
+
+    fn parse_break_statement(&mut self) -> Stat {        
+        let break_token = self.parse_token();
+        let semicolon_token = self.parse_expected_token(TokenKind::Semicolon);
+
+        Stat::Break{break_token, semicolon_token}
     }
 
     fn parse_if_statement(&mut self) -> Stat {        
