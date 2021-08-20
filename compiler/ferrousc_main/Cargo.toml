@@ -8,3 +8,4 @@ edition = "2018"
 [dependencies]
 ferrousc_lexer = { path = "../ferrousc_lexer" }
 ferrousc_parser = { path = "../ferrousc_parser" }
+ferrousc_ast = { path = "../ferrousc_ast" }

@@ -24,6 +24,7 @@ version = "0.1.0"
 name = "ferrousc_main"
 version = "0.1.0"
 dependencies = [
+ "ferrousc_ast",
  "ferrousc_lexer",
  "ferrousc_parser",
 ]

@@ -85,13 +85,7 @@ impl Parser {
         let type_id = self.parse_type_id();
         let initial_value = self.parse_equals_value();
 
-        let semicolon_token = if is_some_and_kind(self.peek(), TokenKind::Semicolon) {
-            self.parse_token()
-        } 
-        else { 
-            // missing token error
-            SyntaxToken{ token: self.peek().unwrap(), trivia: self.eat_trivia() }
-        };
+        let semicolon_token = self.parse_expected_token(TokenKind::Semicolon);
 
         Stat::VarDefinition{ let_token, mut_token, identifier, type_id, initial_value, semicolon_token }
     }
@@ -112,31 +106,38 @@ impl Parser {
     }
 
     fn parse_identifier(&mut self) -> Identifier {
-        if is_some_and_kind(self.peek(), TokenKind::Identifier) {
-            Identifier{ identifier: self.parse_token() }
-        } 
-        else { 
-            // missing token error
-            Identifier{ identifier: SyntaxToken{ token: self.peek().unwrap(), trivia: self.eat_trivia() } }
-        }
+        Identifier{ identifier: self.parse_expected_token(TokenKind::Identifier) }
     }
 
     fn parse_type_id(&mut self) -> Option<TypeId> {
         if !is_some_and_kind(self.peek(), TokenKind::Colon) {
-            if !is_some_and_kind(self.peek(), TokenKind::Identifier) {
-                // missing : token
-            }
-            else {
-                return None
-            }
+            return None;
         }
-        let colon_token = SyntaxToken{ token: self.eat().unwrap(), trivia: self.eat_trivia() };
+        let colon_token = self.parse_token();
         let identifier = self.parse_identifier();
         Some(TypeId{ colon_token, type_name: identifier })
     }
 
     fn parse_token(&mut self) -> SyntaxToken {
-        SyntaxToken{ token: self.eat().unwrap(), trivia: self.eat_trivia() }
+        SyntaxToken{ token: self.eat().unwrap(), trivia: self.eat_trivia(), diagnostics: vec![], }
+    }
+
+    fn parse_expected_token(&mut self, expected_kind: TokenKind) -> SyntaxToken {
+        if is_some_and_kind(self.peek(), expected_kind) {
+            self.parse_token()
+        }
+        else {
+            // TODO: prev whitespace could be used for expected pos and length
+            let next = self.peek();
+            let expected = Token{ kind: TokenKind::Identifier, len: 0, value: String::new() };
+            let diagnostic = Diagnostic{ 
+                kind: ErrorKind::MissingToken{
+                    expected: expected.clone(), 
+                    actual: next,
+                },
+            };
+            SyntaxToken{ token: expected, trivia: self.eat_trivia(), diagnostics: vec![diagnostic], }
+        }
     }
 
     fn eat_trivia(&mut self) -> Vec<Trivia> {

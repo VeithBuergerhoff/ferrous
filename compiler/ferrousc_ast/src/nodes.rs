@@ -26,6 +26,20 @@ pub enum LiteralKind {
 pub struct SyntaxToken {
     pub token: Token,
     pub trivia: Vec<Trivia>,
+    pub diagnostics: Vec<Diagnostic>,
+}
+
+#[derive(Debug)]
+pub struct Diagnostic {
+    pub kind: ErrorKind,
+}
+
+#[derive(Debug)]
+pub enum ErrorKind {
+    MissingToken{ 
+        expected: Token,
+        actual: Option<Token>,
+    },
 }
 
 #[derive(Debug)]
@@ -54,4 +68,12 @@ pub struct EqualsValue {
 pub struct CompilationUnit {
     pub leading_trivia: Vec<Trivia>,
     pub statements: Vec<Stat>,
+}
+
+impl CompilationUnit {
+    pub fn walk(&self, it: impl Fn(&Stat)) {
+        for st in &self.statements {
+            it(st);
+        }
+    }
 }
