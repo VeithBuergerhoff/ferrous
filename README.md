@@ -1,6 +1,6 @@
 # ferrous
-Ferrous is a programming language, ment to be simple to understand and use with inspiration from both Rust and C#.
-The main purpose of this project is to get a feel for rust and satisfy my desire to write my own compiler.
+Ferrous is a programming language, meant to be simple to understand and use, with inspiration from both Rust and C#.
+The main purpose of this project is to get a feel for rust and to satisfy my desire to write my own compiler.
 I learned the basics of Rust in three days and simply looked at other projects for how to structure my code.
 
 The basic project structure and the structure of the lexer was heavily inspired by [the official rust repository](https://github.com/rust-lang/rust). 
