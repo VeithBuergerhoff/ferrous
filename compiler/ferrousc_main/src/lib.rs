@@ -7,6 +7,10 @@ let mut test: aha = 525.52;
 let test2: aha;
 {}
 
+while 5 {
+
+}
+
 if 2 {
 
 }
@@ -139,6 +143,28 @@ fn walk(st: &Stat, tab_index: i32) {
             }
             indent_n(tab_index + 1);
             println!("semicolon_token: {:?},", semicolon_token);
+            indent_n(tab_index);
+            println!("}}");
+        },
+        Stat::While{
+            while_token, 
+            expression,
+            statement,
+        } => {
+            indent_n(tab_index);
+            println!("While Statement {{");
+            indent_n(tab_index + 1);
+            println!("while_token: {:?},", while_token);
+            indent_n(tab_index + 1);
+            println!("expression: {{");
+            print_expression(expression, tab_index + 2);
+            indent_n(tab_index + 1);
+            println!("}}");
+            indent_n(tab_index + 1);
+            println!("Statement: {{");
+            walk(statement, tab_index + 2);
+            indent_n(tab_index + 1);
+            println!("}}");
             indent_n(tab_index);
             println!("}}");
         },

@@ -20,6 +20,11 @@ pub enum Stat {
         statements: Vec<Stat>,
         r_brace: SyntaxToken,
     },
+    While {        
+        while_token: SyntaxToken,
+        expression: Expr,
+        statement: Box<Stat>,
+    },
     If {        
         if_token: SyntaxToken,
         expression: Expr,

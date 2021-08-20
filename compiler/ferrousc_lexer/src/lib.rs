@@ -591,6 +591,7 @@ fn bake_keyword(identifier: &str) -> Option<TokenKind> {
         "let"       => Some(LetKeyword),
         "mut"       => Some(MutKeyword),
         "match"     => Some(MatchKeyword),
+        "while"     => Some(WhileKeyword),
         "if"        => Some(IfKeyword),
         "else"      => Some(ElseKeyword),
         "fn"        => Some(FunctionKeyword),

@@ -65,6 +65,7 @@ impl Parser {
             TokenKind::IfKeyword => self.parse_if_statement(),
             TokenKind::BreakKeyword => self.parse_break_statement(),
             TokenKind::ReturnKeyword => self.parse_return_statement(),
+            TokenKind::WhileKeyword => self.parse_while_statement(),
             _ => {
                 let _unexpected_token = self.eat();
                 let statement = self.parse_statement();
@@ -93,6 +94,15 @@ impl Parser {
         let semicolon_token = self.parse_expected_token(TokenKind::Semicolon);
 
         Stat::Break{break_token, semicolon_token}
+    }
+
+    fn parse_while_statement(&mut self) -> Stat {        
+        let while_token = self.parse_token();
+
+        let expression = self.parse_expression();
+        let statement = self.parse_statement();
+
+        Stat::While{while_token, expression, statement: Box::new(statement)}
     }
 
     fn parse_if_statement(&mut self) -> Stat {        
