@@ -150,9 +150,23 @@ impl Parser {
 
         let return_type = self.parse_function_return_type();
 
-        let statement = Box::new(self.parse_statement());
+        let body = self.parse_function_body();
 
-        Stat::FunctionDefinition{ fn_token, identifier, parameter_list, return_type, statement }
+        Stat::FunctionDefinition{ fn_token, identifier, parameter_list, return_type, body }
+    }
+
+
+
+    fn parse_function_body(&mut self) -> Box<FunctionBody> {
+        if is_some_and_kind(self.peek(), TokenKind::EqualsGreater) {
+            let fat_arrow_token = self.parse_token();
+            let statement = self.parse_statement();
+            Box::new(FunctionBody::ExpressionBody{ fat_arrow_token, statement })
+        }
+        else {
+            let block = self.parse_block_statement();
+            Box::new(FunctionBody::BlockStatement{ block })
+        }
     }
 
     fn parse_function_return_type(&mut self) -> Option<ReturnType> {

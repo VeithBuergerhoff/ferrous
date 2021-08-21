@@ -30,7 +30,7 @@ pub enum Stat {
         identifier: Identifier,
         parameter_list: ParameterList,
         return_type: Option<ReturnType>,
-        statement: Box<Stat>,
+        body: Box<FunctionBody>,
     },
     If {        
         if_token: SyntaxToken,
@@ -51,6 +51,12 @@ pub enum Stat {
         expression: Option<Expr>,
         semicolon_token: SyntaxToken,
     },
+}
+
+#[derive(Debug)]
+pub enum FunctionBody {
+    BlockStatement { block: Stat },
+    ExpressionBody { fat_arrow_token: SyntaxToken, statement: Stat },
 }
 
 #[derive(Debug)]

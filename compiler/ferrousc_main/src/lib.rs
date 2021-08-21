@@ -1,4 +1,4 @@
-use ferrousc_ast::nodes::{Expr, Parameter, Stat};
+use ferrousc_ast::nodes::{Expr, FunctionBody, Stat};
 use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
@@ -12,6 +12,8 @@ let test4 = false;
 fn test(a: bool, b: bool) {
     return 5;
 }
+
+fn test(a: bool, b: bool) => return 5;
 
 fn are_equal(a: bool, b: bool) -> bool {
     return false;
@@ -138,7 +140,7 @@ fn walk(st: &Stat, tab_index: i32) {
             identifier, 
             parameter_list,
             return_type,
-            statement,
+            body,
         } => {
             indent_n(tab_index);
             println!("Function Definition Statement {{");
@@ -190,7 +192,34 @@ fn walk(st: &Stat, tab_index: i32) {
                 println!("return_type: none");
             }
            
-            walk(statement, tab_index + 2);
+            indent_n(tab_index + 1);
+            println!("body: {{");
+            match body.as_ref() {
+                FunctionBody::BlockStatement{ block } => {
+                    walk(block, tab_index + 2);
+                },
+                FunctionBody::ExpressionBody{ fat_arrow_token, statement } => {
+                    indent_n(tab_index + 2);
+                    println!("expression_body: {{");
+
+                    indent_n(tab_index + 3);
+                    println!("fat_arrow_token: {:?}", fat_arrow_token);
+
+                    indent_n(tab_index + 3);
+                    println!("statement: {{");
+
+                    walk(statement, tab_index + 4);
+
+                    indent_n(tab_index + 3);
+                    println!("}}");
+
+                    indent_n(tab_index + 2);
+                    println!("}}");
+                },
+            }
+
+            indent_n(tab_index + 1);
+            println!("}}");
 
             indent_n(tab_index);
             println!("}}");

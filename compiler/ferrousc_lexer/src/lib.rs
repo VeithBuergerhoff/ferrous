@@ -93,7 +93,7 @@ pub enum TokenKind {
     LessLess,
     EqualEqual,
 
-    EqualGreater,
+    EqualsGreater,
     MinusGreater,
 
     Equal,
@@ -303,7 +303,7 @@ impl Cursor<'_> {
                 },
                 '>' => {
                     self.eat();
-                    Token::new(TokenKind::EqualGreater, "=>".to_owned(), 2)
+                    Token::new(TokenKind::EqualsGreater, "=>".to_owned(), 2)
                 },
                 _ => Token::new(TokenKind::Equal, "=".to_owned(), 1),
             },
