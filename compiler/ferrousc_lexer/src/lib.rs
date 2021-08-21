@@ -132,9 +132,11 @@ pub enum TokenKind {
     StringLiteral { terminated: bool },
     CharLiteral { terminated: bool },
     NumberLiteral { base: Base, has_digits: bool},
-
+    
     Identifier,
-
+    
+    TrueKeyword,
+    FalseKeyword,
     LetKeyword,
     MutKeyword,
     MatchKeyword,
@@ -597,6 +599,8 @@ fn bake_keyword(identifier: &str) -> Option<TokenKind> {
         "fn"        => Some(FunctionKeyword),
         "return"    => Some(ReturnKeyword),
         "break"     => Some(BreakKeyword),
+        "true"     => Some(TrueKeyword),
+        "false"     => Some(FalseKeyword),
         _ => None,
     }
 }

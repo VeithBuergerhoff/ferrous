@@ -171,7 +171,22 @@ impl Parser {
     }
 
     fn parse_expression(&mut self) -> Expr {
-        Expr::Literal{ kind: LiteralKind::Number{ number_literal: self.parse_token() } }
+        if let Some(expr) = self.peek() {
+            match expr.kind {
+                TokenKind::NumberLiteral{..} =>
+                    Expr::Literal{ kind: LiteralKind::Number{ number_literal: self.parse_token() } },
+                TokenKind::StringLiteral{..} => 
+                    Expr::Literal{ kind: LiteralKind::String{ string_literal: self.parse_token() } },
+                TokenKind::CharLiteral{..} =>
+                    Expr::Literal{ kind: LiteralKind::Char{ char_literal: self.parse_token() } },
+                TokenKind::TrueKeyword | TokenKind::FalseKeyword =>
+                    Expr::Literal{ kind: LiteralKind::Bool{ bool_literal: self.parse_token() } },
+                _ => panic!("unknown expression type"),
+            }
+        }
+        else {
+            panic!("unexpected end of stream")
+        }
     }
 
     fn parse_identifier(&mut self) -> Identifier {

@@ -48,7 +48,10 @@ pub enum Stat {
 
 #[derive(Debug)]
 pub enum LiteralKind {
-    Number { number_literal: SyntaxToken }
+    Number { number_literal: SyntaxToken },
+    String { string_literal: SyntaxToken },
+    Char { char_literal: SyntaxToken },
+    Bool { bool_literal: SyntaxToken },
 }
 
 #[derive(Debug)]

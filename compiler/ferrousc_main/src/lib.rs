@@ -3,11 +3,13 @@ use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
 const TEST_CODE: &str = r#"
-let mut test: aha = 525.52;
-let test2: aha;
+let mut test1: aha = 525.52;
+let test2 = "test string";
+let test3 = 'c';
+let test4 = false;
 {}
 
-while 5 {
+while true {
 
 }
 
