@@ -148,9 +148,22 @@ impl Parser {
 
         let parameter_list = self.parse_parameter_list();
 
+        let return_type = self.parse_function_return_type();
+
         let statement = Box::new(self.parse_statement());
 
-        Stat::FunctionDefinition{ fn_token, identifier, parameter_list, statement }
+        Stat::FunctionDefinition{ fn_token, identifier, parameter_list, return_type, statement }
+    }
+
+    fn parse_function_return_type(&mut self) -> Option<ReturnType> {
+        if is_some_and_kind(self.peek(), TokenKind::MinusGreater) {
+            let small_arrow_token = self.parse_token();
+            let identifier = self.parse_identifier();
+            Some(ReturnType{small_arrow_token, identifier})
+        }
+        else {
+            None
+        }
     }
 
     fn parse_parameter_list(&mut self) -> ParameterList {

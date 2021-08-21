@@ -29,6 +29,7 @@ pub enum Stat {
         fn_token: SyntaxToken,
         identifier: Identifier,
         parameter_list: ParameterList,
+        return_type: Option<ReturnType>,
         statement: Box<Stat>,
     },
     If {        
@@ -58,6 +59,12 @@ pub enum LiteralKind {
     String { string_literal: SyntaxToken },
     Char { char_literal: SyntaxToken },
     Bool { bool_literal: SyntaxToken },
+}
+
+#[derive(Debug)]
+pub struct ReturnType {
+    pub small_arrow_token: SyntaxToken,
+    pub identifier: Identifier,
 }
 
 #[derive(Debug)]

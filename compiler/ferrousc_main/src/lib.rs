@@ -13,6 +13,10 @@ fn test(a: bool, b: bool) {
     return 5;
 }
 
+fn are_equal(a: bool, b: bool) -> bool {
+    return false;
+}
+
 
 while true {
 
@@ -133,6 +137,7 @@ fn walk(st: &Stat, tab_index: i32) {
             fn_token, 
             identifier, 
             parameter_list,
+            return_type,
             statement,
         } => {
             indent_n(tab_index);
@@ -166,7 +171,25 @@ fn walk(st: &Stat, tab_index: i32) {
             
             indent_n(tab_index + 1);
             println!("}}");
+
+            indent_n(tab_index + 1);
+            if return_type.is_some() {
+                let return_type = return_type.as_ref().unwrap();
+                println!("return_type: {{");
             
+                indent_n(tab_index + 2);
+                println!("small_arrow_token: {:?}", return_type.small_arrow_token);
+
+                indent_n(tab_index + 2);
+                println!("identifier: {:?}", return_type.identifier);
+    
+                indent_n(tab_index + 1);
+                println!("}}");
+            }
+            else {
+                println!("return_type: none");
+            }
+           
             walk(statement, tab_index + 2);
 
             indent_n(tab_index);
