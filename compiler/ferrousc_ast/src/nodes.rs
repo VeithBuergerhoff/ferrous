@@ -54,6 +54,12 @@ pub enum Stat {
 }
 
 #[derive(Debug)]
+pub enum TypeKind {
+    UserDefined { identifier: Identifier },
+    Internal { identifier: Identifier },
+}
+
+#[derive(Debug)]
 pub enum FunctionBody {
     BlockStatement { block: Stat },
     ExpressionBody { fat_arrow_token: SyntaxToken, statement: Stat },
@@ -70,7 +76,7 @@ pub enum LiteralKind {
 #[derive(Debug)]
 pub struct ReturnType {
     pub small_arrow_token: SyntaxToken,
-    pub identifier: Identifier,
+    pub type_kind: TypeKind,
 }
 
 #[derive(Debug)]
@@ -120,7 +126,7 @@ pub struct Identifier {
 #[derive(Debug)]
 pub struct TypeId {
     pub colon_token: SyntaxToken,
-    pub type_name: Identifier,
+    pub type_kind: TypeKind,
 }
 
 #[derive(Debug)]

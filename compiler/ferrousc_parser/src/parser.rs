@@ -6,6 +6,31 @@ const ASSIGNMENT_TOKENS: [TokenKind; 2] = [
     TokenKind::QuestionQuestionEquals
 ];
 
+const INT_TYPES: [&str; 16] = [
+    "sbyte", "i8", 
+    "short", "i16", 
+    "int", "i32", 
+    "long", "i64",
+
+    "byte", "u8", 
+    "ushort", "u16", 
+    "uint", "u32", 
+    "ulong", "u64",
+];
+
+const FLOAT_TYPES: [&str; 4] = [
+    "float", "f32", 
+    "double", "f64",
+];
+
+const STRING_TYPES: [&str; 1] = [
+    "string"
+];
+
+const BOOL_TYPES: [&str; 1] = [
+    "bool"
+];
+
 pub struct Parser {
     tokens: Vec<Token>,
     pos: usize,
@@ -172,8 +197,8 @@ impl Parser {
     fn parse_function_return_type(&mut self) -> Option<ReturnType> {
         if is_some_and_kind(self.peek(), TokenKind::MinusGreater) {
             let small_arrow_token = self.parse_token();
-            let identifier = self.parse_identifier();
-            Some(ReturnType{small_arrow_token, identifier})
+            let type_kind = self.parse_type();
+            Some(ReturnType{ small_arrow_token, type_kind })
         }
         else {
             None
@@ -204,7 +229,7 @@ impl Parser {
                 None
             };
 
-            parameters.push(Parameter{identifier, type_id, comma_token});
+            parameters.push(Parameter{ identifier, type_id, comma_token });
         }
 
         parameters
@@ -240,6 +265,19 @@ impl Parser {
         Some(EqualsValue{ equals_token, expression })
     }
 
+    fn parse_type(&mut self) -> TypeKind {
+        let identifier = self.parse_identifier();
+        if INT_TYPES.contains(&identifier.identifier.token.value.as_str()) 
+        || FLOAT_TYPES.contains(&identifier.identifier.token.value.as_str()) 
+        || STRING_TYPES.contains(&identifier.identifier.token.value.as_str())
+        || BOOL_TYPES.contains(&identifier.identifier.token.value.as_str()) {
+            TypeKind::Internal{identifier}
+        }
+        else {
+            TypeKind::UserDefined{identifier}
+        }
+    }
+
     fn parse_expression(&mut self) -> Expr {
         if let Some(expr) = self.peek() {
             match expr.kind {
@@ -268,8 +306,8 @@ impl Parser {
             return None;
         }
         let colon_token = self.parse_token();
-        let identifier = self.parse_identifier();
-        Some(TypeId{ colon_token, type_name: identifier })
+        let type_kind = self.parse_type();
+        Some(TypeId{ colon_token, type_kind })
     }
 
     fn parse_token(&mut self) -> SyntaxToken {

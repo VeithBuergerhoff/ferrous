@@ -19,7 +19,6 @@ fn are_equal(a: bool, b: bool) -> bool {
     return false;
 }
 
-
 while true {
 
 }
@@ -90,7 +89,7 @@ fn walk(st: &Stat, tab_index: i32) {
                 indent_n(tab_index + 2);
                 println!("colon: {:?},", id.colon_token);
                 indent_n(tab_index + 2);
-                println!("typename: {:?},", id.type_name);
+                println!("typename: {:?},", id.type_kind);
                 indent_n(tab_index + 1);
                 println!("}}");
             }
@@ -183,7 +182,7 @@ fn walk(st: &Stat, tab_index: i32) {
                 println!("small_arrow_token: {:?}", return_type.small_arrow_token);
 
                 indent_n(tab_index + 2);
-                println!("identifier: {:?}", return_type.identifier);
+                println!("type_kind: {:?}", return_type.type_kind);
     
                 indent_n(tab_index + 1);
                 println!("}}");
