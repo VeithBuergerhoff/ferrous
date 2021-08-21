@@ -1,4 +1,4 @@
-use ferrousc_ast::nodes::{Expr, Stat};
+use ferrousc_ast::nodes::{Expr, Parameter, Stat};
 use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
@@ -8,6 +8,11 @@ let test2 = "test string";
 let test3 = 'c';
 let test4 = false;
 {}
+
+fn test(a: bool, b: bool) {
+    return 5;
+}
+
 
 while true {
 
@@ -121,6 +126,49 @@ fn walk(st: &Stat, tab_index: i32) {
             println!("break_token: {:?},", break_token);
             indent_n(tab_index + 1);
             println!("semicolon_token: {:?},", semicolon_token);
+            indent_n(tab_index);
+            println!("}}");
+        },
+        Stat::FunctionDefinition {
+            fn_token, 
+            identifier, 
+            parameter_list,
+            statement,
+        } => {
+            indent_n(tab_index);
+            println!("Function Definition Statement {{");
+            indent_n(tab_index + 1);
+            println!("fn_token: {:?},", fn_token);
+            indent_n(tab_index + 1);
+            println!("identifier: {:?},", identifier);
+
+            indent_n(tab_index + 1);
+            println!("parameter_list: {{");
+            indent_n(tab_index + 2);
+            println!("l_paran: {:?}", parameter_list.l_paran);
+            
+            for parameter in &parameter_list.parameters {
+                indent_n(tab_index + 2);
+                println!("parameter: {{");
+
+                indent_n(tab_index + 3);
+                println!("identifier: {:?}", parameter.identifier);
+                indent_n(tab_index + 3);
+                println!("type_id: {:?}", parameter.type_id);
+                indent_n(tab_index + 3);
+                println!("comma_token: {:?}", parameter.comma_token);
+
+                indent_n(tab_index + 2);
+                println!("}}");
+            }
+            
+            println!("r_paran: {:?}", parameter_list.r_paran);
+            
+            indent_n(tab_index + 1);
+            println!("}}");
+            
+            walk(statement, tab_index + 2);
+
             indent_n(tab_index);
             println!("}}");
         },

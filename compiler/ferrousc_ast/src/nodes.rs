@@ -25,6 +25,12 @@ pub enum Stat {
         expression: Expr,
         statement: Box<Stat>,
     },
+    FunctionDefinition {        
+        fn_token: SyntaxToken,
+        identifier: Identifier,
+        parameter_list: ParameterList,
+        statement: Box<Stat>,
+    },
     If {        
         if_token: SyntaxToken,
         expression: Expr,
@@ -52,6 +58,20 @@ pub enum LiteralKind {
     String { string_literal: SyntaxToken },
     Char { char_literal: SyntaxToken },
     Bool { bool_literal: SyntaxToken },
+}
+
+#[derive(Debug)]
+pub struct ParameterList {
+    pub l_paran: SyntaxToken,
+    pub r_paran: SyntaxToken,
+    pub parameters: Vec<Parameter>,
+}
+
+#[derive(Debug)]
+pub struct Parameter {
+    pub identifier: Identifier,
+    pub type_id: TypeId,
+    pub comma_token: Option<SyntaxToken>,
 }
 
 #[derive(Debug)]

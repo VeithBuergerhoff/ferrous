@@ -60,12 +60,13 @@ impl Parser {
         */
 
         match next.unwrap().kind {
-            TokenKind::LetKeyword => self.parse_var_declaration(),
+            TokenKind::LetKeyword => self.parse_var_definition(),
             TokenKind::LBrace => self.parse_block_statement(),
             TokenKind::IfKeyword => self.parse_if_statement(),
             TokenKind::BreakKeyword => self.parse_break_statement(),
             TokenKind::ReturnKeyword => self.parse_return_statement(),
             TokenKind::WhileKeyword => self.parse_while_statement(),
+            TokenKind::FunctionKeyword => self.parse_function_definition(),
             _ => {
                 let _unexpected_token = self.eat();
                 let statement = self.parse_statement();
@@ -140,7 +141,49 @@ impl Parser {
         Stat::Block{l_brace, statements, r_brace}
     }
 
-    fn parse_var_declaration(&mut self) -> Stat {
+    fn parse_function_definition(&mut self) -> Stat {
+        let fn_token = self.parse_token();
+
+        let identifier = self.parse_identifier();
+
+        let parameter_list = self.parse_parameter_list();
+
+        let statement = Box::new(self.parse_statement());
+
+        Stat::FunctionDefinition{ fn_token, identifier, parameter_list, statement }
+    }
+
+    fn parse_parameter_list(&mut self) -> ParameterList {
+        let l_paran = self.parse_token();
+
+        let parameters = self.parse_parameters();
+
+        let r_paran = self.parse_expected_token(TokenKind::RParen);
+
+        ParameterList{ l_paran, parameters, r_paran }
+    }
+    
+    fn parse_parameters(&mut self) -> Vec<Parameter> {
+        let mut parameters = Vec::<Parameter>::new();
+
+        while is_some_and_kind(self.peek(), TokenKind::Identifier) {
+            let identifier = self.parse_identifier();
+            let type_id = self.parse_type_id().unwrap();
+            
+            let comma_token = if is_some_and_kind(self.peek(), TokenKind::Comma) {
+                Some(self.parse_token())
+            }
+            else {
+                None
+            };
+
+            parameters.push(Parameter{identifier, type_id, comma_token});
+        }
+
+        parameters
+    }
+
+    fn parse_var_definition(&mut self) -> Stat {
         let let_token = self.parse_token();
 
         let mut_token = if is_some_and_kind(self.peek(), TokenKind::MutKeyword) {
