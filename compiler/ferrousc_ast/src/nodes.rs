@@ -2,7 +2,12 @@ use ferrousc_lexer::Token;
 
 #[derive(Debug)]
 pub enum Expr {
-    Literal { kind: LiteralKind }
+    Literal { kind: LiteralKind },
+    Range {
+        start: Box<Expr>,
+        range_specifier: SyntaxToken,
+        end: Box<Expr>,
+    },
 }
 
 #[derive(Debug)]
@@ -19,6 +24,13 @@ pub enum Stat {
         l_brace: SyntaxToken,
         statements: Vec<Stat>,
         r_brace: SyntaxToken,
+    },
+    For {        
+        for_token: SyntaxToken,
+        identifier: Identifier,
+        in_token: SyntaxToken,
+        range: Expr,
+        statement: Box<Stat>,
     },
     While {        
         while_token: SyntaxToken,

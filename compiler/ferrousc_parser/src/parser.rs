@@ -92,6 +92,7 @@ impl Parser {
             TokenKind::ReturnKeyword => self.parse_return_statement(),
             TokenKind::WhileKeyword => self.parse_while_statement(),
             TokenKind::FunctionKeyword => self.parse_function_definition(),
+            TokenKind::ForKeyword => self.parse_for_statement(),
             _ => {
                 let _unexpected_token = self.eat();
                 let statement = self.parse_statement();
@@ -100,6 +101,16 @@ impl Parser {
                 statement
             }
         }
+    }
+
+    fn parse_for_statement(&mut self) -> Stat {        
+        let for_token = self.parse_token();
+        let identifier = self.parse_identifier();
+        let in_token = self.parse_expected_token(TokenKind::InKeyword);
+        let range = self.parse_expression();
+        let statement = Box::new(self.parse_statement());
+
+        Stat::For{for_token, identifier, in_token, range, statement}
     }
 
     fn parse_return_statement(&mut self) -> Stat {        

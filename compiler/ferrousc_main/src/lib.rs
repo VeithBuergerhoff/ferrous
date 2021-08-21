@@ -9,6 +9,10 @@ let test3 = 'c';
 let test4 = false;
 {}
 
+for v in 25 {
+
+}
+
 fn test(a: bool, b: bool) {
     return 5;
 }
@@ -61,6 +65,7 @@ pub fn print() {
 
     ast.walk(|st|{
         walk(st, 0);
+        println!();
     })
 }
 
@@ -244,6 +249,38 @@ fn walk(st: &Stat, tab_index: i32) {
             }
             indent_n(tab_index + 1);
             println!("semicolon_token: {:?},", semicolon_token);
+            indent_n(tab_index);
+            println!("}}");
+        },
+        Stat::For{
+            for_token, 
+            identifier,
+            in_token,
+            range,
+            statement,
+        } => {
+            indent_n(tab_index);
+            println!("For Statement {{");
+
+            indent_n(tab_index + 1);
+            println!("for_token: {:?},", for_token);
+            indent_n(tab_index + 1);
+            println!("identifier: {:?},", identifier);
+            indent_n(tab_index + 1);
+            println!("in_token: {:?},", in_token);
+
+            indent_n(tab_index + 1);
+            println!("expression: {{");
+            print_expression(range, tab_index + 2);
+            indent_n(tab_index + 1);
+            println!("}}");
+
+            indent_n(tab_index + 1);
+            println!("Statement: {{");
+            walk(statement, tab_index + 2);
+            indent_n(tab_index + 1);
+            println!("}}");
+
             indent_n(tab_index);
             println!("}}");
         },
