@@ -359,7 +359,10 @@ impl Parser {
         // for more information: https://en.wikipedia.org/wiki/Operator-precedence_parser
         // based on: https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
 
-        let mut lhs = if is_operator(&self.peek()) {
+        let mut lhs = if is_operator(&self.peek()) 
+                            // special rule for lbracket, since they are used for array initializers!
+                            && self.peek().unwrap().kind != TokenKind::LBracket {
+
             let op = self.parse_token();
             let ((), r_bp) = prefix_binding_power(op.token.kind);
             let rhs = self.parse_expression_bp(r_bp);
@@ -437,6 +440,8 @@ impl Parser {
                     Expr::Literal{ kind: LiteralKind::Char{ char_literal: self.parse_token() } },
                 TokenKind::TrueKeyword | TokenKind::FalseKeyword =>
                     Expr::Literal{ kind: LiteralKind::Bool{ bool_literal: self.parse_token() } },
+                TokenKind::LBracket => self.parse_array_initializer(),
+                
                 TokenKind::Identifier{..} => {
                     let identifier = self.parse_identifier();
                     
@@ -456,6 +461,29 @@ impl Parser {
         else {
             panic!("unexpected end of stream")
         }
+    }
+
+    fn parse_array_initializer(&mut self) -> Expr {
+        let mut items = Vec::<InitializerItem>::new();
+
+        let lbracket = self.parse_token();
+
+        while is_possible_expression(&self.peek()) {
+            let expr = self.parse_expression();
+            
+            let comma_token = if is_some_and_kind(&self.peek(), TokenKind::Comma) {
+                Some(self.parse_token())
+            }
+            else {
+                None
+            };
+            
+            items.push(InitializerItem{ expr, comma_token });
+        }
+
+        let rbracket = self.parse_expected_token(TokenKind::RBracket);
+
+        Expr::ArrayInitializer{ lbracket, items, rbracket }
     }
 
     fn parse_call(&mut self, identifier: Identifier) -> Expr {

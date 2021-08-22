@@ -3,6 +3,8 @@ use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
 const TEST_CODE: &str = r#"
+let test = [5, "hi"];
+
 if 1 < 2 {
     test();
     test(5 + 3);

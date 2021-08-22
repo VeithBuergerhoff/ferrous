@@ -14,6 +14,11 @@ pub enum Expr {
         expr: Box<Expr>,
         rbracket: SyntaxToken,
     },
+    ArrayInitializer {
+        lbracket: SyntaxToken,
+        items: Vec<InitializerItem>,
+        rbracket: SyntaxToken,
+    },
     IdentifierUsage {
         identifier: Identifier,
     },
@@ -116,6 +121,12 @@ pub enum LiteralKind {
     String { string_literal: SyntaxToken },
     Char { char_literal: SyntaxToken },
     Bool { bool_literal: SyntaxToken },
+}
+
+#[derive(Debug)]
+pub struct InitializerItem {
+    pub expr: Expr,
+    pub comma_token: Option<SyntaxToken>,
 }
 
 #[derive(Debug)]
