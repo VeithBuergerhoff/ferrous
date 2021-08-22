@@ -3,6 +3,27 @@ use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
 const TEST_CODE: &str = r#"
+if 1 < 2 {
+
+}
+
+if !true == false {
+
+}
+
+// > 3 is gone
+if "string".2 > 3 {
+
+}
+
+if "test"[5] < 8 {
+
+}
+
+for n in 0..5 {
+
+}
+
 let mut test1: aha = 525.52;
 let test2 = "test string";
 let test3 = 'c';

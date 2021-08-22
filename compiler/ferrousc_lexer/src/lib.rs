@@ -65,88 +65,169 @@ const NON_LITERAL_CHARS: [char; 26] = [
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TokenKind {
+    /// any whitespace char
     Whitespace,
+    /// \r\n, \r, or \n
     Newline,
 
+    /// from // to eol
     LineComment,
+    /// from "/*" to "*/". When "*/" is missing terminated will be false
     MultilineComment { terminated: bool },
 
+    /// /
     Slash,
+    /// *
     Star,
-    StarStar,
+    /// -
     Minus,
+    /// --
     MinusMinus,
+    /// +
     Plus,
+    /// ++
     PlusPlus,
+    /// ^
     Caret,
+    /// %
     Percent,
+    /// ~
     Tilde,
 
+    /// &
     Amp,
+    /// &&
     AmpAmp,
+    /// |
     Bar,
+    /// ||
     BarBar,
 
+    /// >
     Greater,
+    /// >>
     GreaterGreater,
+    /// <
     Less,
+    /// <<
     LessLess,
+    /// ==
     EqualEqual,
 
+    /// =>
     EqualsGreater,
+    /// ->
     MinusGreater,
 
+    /// =
     Equal,
+    /// +=
     PlusEqual,
+    /// -=
     MinusEqual,
+    /// %=
     PercentEqual,
+    /// *=
     StarEqual,
+    /// /=
     SlashEqual,
+    /// &=
     AmpEqual,
+    /// |=
     BarEqual,
+    /// !=
     BangEqual,
+    /// >=
     GreaterEqual,
+    /// <=
     LessEqual,
+    /// ^=
     CaretEqual,
+    /// ~=
     TildeEqual,
+    /// <<=
+    LessLessEqual,
+    /// >>=
+    GreaterGreaterEqual,
+    /// ??=
     QuestionQuestionEquals,
 
+    /// ?[
+    QuestionLBracket,
+    /// [
     LBracket,
+    /// ]
     RBracket,
+    /// {
     LBrace,
+    /// }
     RBrace,
+    /// (
     LParen,
+    /// )
     RParen,
 
+    /// ?.
+    QuestionDot,
+
+    /// .
     Dot,
+    /// ..
     DotDot,
+    /// ..=
+    DotDotEqual,
+    /// ,
     Comma,
+    /// ;
     Semicolon,
+    /// :
     Colon,
+    /// ::
     ColonColon,
 
+    /// !
     Bang,
+    /// ?
     Question,
+    /// ??
     QuestionQuestion,
 
+    /// "some text or \"escaped characters\" \n". When the second '"' is missing terminated will be false
     StringLiteral { terminated: bool },
+    /// 'c'. When the second "'" is missing terminated will be false
     CharLiteral { terminated: bool },
+    /// 5 25.5 0b1011_0011 0xAFfe 0o3710 '_' can be used between numbers and do not affect the behaviour. 
+    /// base for what base the number is in. has_digits will be false if there a no digits in the literal.
     NumberLiteral { base: Base, has_digits: bool},
     
+    /// Any identifier. Must start with _ or any unicode char that is not used anywhere else. May contain Numbers after the first char.
     Identifier,
     
+    /// true
     TrueKeyword,
+    /// false
     FalseKeyword,
+    /// let
     LetKeyword,
+    /// mut
     MutKeyword,
+    /// match
     MatchKeyword,
+    /// if
     IfKeyword,
+    /// else
     ElseKeyword,
+    /// for
     ForKeyword,
+    /// in
     InKeyword,
+    /// while
     WhileKeyword,
+    /// fn
     FunctionKeyword,
+    /// return
     ReturnKeyword,
+    /// break;
     BreakKeyword,
 
     Unknown,
@@ -209,10 +290,6 @@ impl Cursor<'_> {
                     self.eat();
                     Token::new(TokenKind::StarEqual, "*=".to_owned(), 2)
                 },
-                '*' => {
-                    self.eat();
-                    Token::new(TokenKind::StarStar, "**".to_owned(), 2)
-                },
                 _ => Token::new(TokenKind::Star, "*".to_owned(), 1),
             },
             '+' => match self.peek() {
@@ -270,7 +347,13 @@ impl Cursor<'_> {
                 },
                 '>' => {
                     self.eat();
-                    Token::new(TokenKind::GreaterGreater, ">>".to_owned(), 2)
+                    match self.peek() {
+                        '=' => {
+                            self.eat();
+                            Token::new(TokenKind::GreaterGreaterEqual, ">>=".to_owned(), 3)
+                        },
+                        _ => Token::new(TokenKind::GreaterGreater, ">>".to_owned(), 2),
+                    }
                 },
                 _ => Token::new(TokenKind::Greater, ">".to_owned(), 1),
             },
@@ -281,7 +364,13 @@ impl Cursor<'_> {
                 },
                 '<' => {
                     self.eat();
-                    Token::new(TokenKind::LessLess, "<<".to_owned(), 2)
+                    match self.peek() {
+                        '=' => {
+                            self.eat();
+                            Token::new(TokenKind::LessLessEqual, "<<=".to_owned(), 3)
+                        },
+                        _ => Token::new(TokenKind::LessLess, "<<".to_owned(), 2),
+                    }
                 },
                 _ => Token::new(TokenKind::Less, "<".to_owned(), 1),
             },
@@ -295,6 +384,14 @@ impl Cursor<'_> {
                         },
                         _ => Token::new(TokenKind::QuestionQuestion, "??".to_owned(), 2),
                     }
+                },
+                '.' => {
+                    self.eat();
+                    Token::new(TokenKind::QuestionDot, "?.".to_owned(), 2)
+                },
+                '[' => {
+                    self.eat();
+                    Token::new(TokenKind::QuestionLBracket, "?[".to_owned(), 2)
                 },
                 _ => Token::new(TokenKind::Question, "<".to_owned(), 1),
             },
@@ -333,7 +430,15 @@ impl Cursor<'_> {
             '.' => match self.peek() {
                 '.' => {
                     self.eat();
-                    Token::new(TokenKind::DotDot, "..".to_owned(), 2)
+                    match self.peek() {
+                        '=' => {
+                            self.eat();
+                            Token::new(TokenKind::DotDotEqual, "..=".to_owned(), 3)
+                        },
+                        _ => {
+                            Token::new(TokenKind::DotDot, "..".to_owned(), 2)
+                        },
+                    }
                 },
                 _ => Token::new(TokenKind::Dot, ".".to_owned(), 1),
             },
@@ -509,6 +614,10 @@ impl Cursor<'_> {
             match self.peek() {
                 '_' | '0'..='9' => lexeme.push(self.eat()),
                 '.' if !had_dot => {
+                    if self.peek_n(1) == '.' {
+                        // it's range operator dot and not a decimal dot
+                        break;
+                    }
                     had_dot = true;
                     lexeme.push(self.eat());
                 },

@@ -3,7 +3,58 @@ use ferrousc_lexer::{Token, TokenKind};
 
 const ASSIGNMENT_TOKENS: [TokenKind; 2] = [
     TokenKind::Equal, 
-    TokenKind::QuestionQuestionEquals
+    TokenKind::QuestionQuestionEquals,
+];
+
+const OPERATORS: [TokenKind; 44] = [
+    TokenKind::Plus, 
+    TokenKind::Minus,     
+    TokenKind::Star,     
+    TokenKind::Slash,
+    TokenKind::Bang,
+    TokenKind::LBracket,
+    TokenKind::QuestionLBracket,
+
+    TokenKind::Dot,
+    TokenKind::QuestionDot,
+    TokenKind::DotDot,
+    TokenKind::DotDotEqual,
+    TokenKind::ColonColon,  
+
+    TokenKind::MinusMinus,
+    TokenKind::PlusPlus,
+    TokenKind::Caret,
+    TokenKind::Percent,
+    TokenKind::Tilde,    
+    TokenKind::Amp,
+    TokenKind::AmpAmp,
+    TokenKind::Bar,
+    TokenKind::BarBar,    
+    TokenKind::Greater,
+    TokenKind::GreaterGreater,
+    TokenKind::Less,
+    TokenKind::LessLess,
+    TokenKind::EqualEqual,
+
+    TokenKind::Equal,
+    TokenKind::PlusEqual,
+    TokenKind::MinusEqual,
+    TokenKind::PercentEqual,
+    TokenKind::StarEqual,
+    TokenKind::SlashEqual,
+    TokenKind::AmpEqual,
+    TokenKind::BarEqual,
+    TokenKind::BangEqual,
+    TokenKind::GreaterEqual,
+    TokenKind::LessEqual,
+    TokenKind::CaretEqual,
+    TokenKind::TildeEqual,        
+    TokenKind::LessLessEqual,
+    TokenKind::GreaterGreaterEqual,
+    TokenKind::QuestionQuestionEquals, 
+  
+    TokenKind::Question,
+    TokenKind::QuestionQuestion,
 ];
 
 const INT_TYPES: [&str; 16] = [
@@ -25,6 +76,10 @@ const FLOAT_TYPES: [&str; 4] = [
 
 const STRING_TYPES: [&str; 1] = [
     "string"
+];
+
+const CHAR_TYPES: [&str; 1] = [
+    "char"
 ];
 
 const BOOL_TYPES: [&str; 1] = [
@@ -115,7 +170,7 @@ impl Parser {
 
     fn parse_return_statement(&mut self) -> Stat {        
         let return_token = self.parse_token();
-        let expression = if !is_some_and_kind(self.peek(), TokenKind::Semicolon) {
+        let expression = if !is_some_and_kind(&self.peek(), TokenKind::Semicolon) {
             Some(self.parse_expression())
         }
         else {
@@ -154,7 +209,7 @@ impl Parser {
     }
 
     fn parse_else_statement(&mut self) -> Option<Box<Stat>> { 
-        if is_some_and_kind(self.peek(), TokenKind::ElseKeyword) {        
+        if is_some_and_kind(&self.peek(), TokenKind::ElseKeyword) {        
             let else_token = self.parse_token();
             let statement = self.parse_statement();
             Some(Box::new(Stat::Else{else_token, statement: Box::new(statement)}))
@@ -168,7 +223,7 @@ impl Parser {
         let mut statements = vec![];
         let l_brace = self.parse_token();
 
-        while !is_some_and_kind(self.peek(), TokenKind::RBrace) {
+        while !is_some_and_kind(&self.peek(), TokenKind::RBrace) {
             statements.push(self.parse_statement());
         }
 
@@ -194,7 +249,7 @@ impl Parser {
 
 
     fn parse_function_body(&mut self) -> Box<FunctionBody> {
-        if is_some_and_kind(self.peek(), TokenKind::EqualsGreater) {
+        if is_some_and_kind(&self.peek(), TokenKind::EqualsGreater) {
             let fat_arrow_token = self.parse_token();
             let statement = self.parse_statement();
             Box::new(FunctionBody::ExpressionBody{ fat_arrow_token, statement })
@@ -206,7 +261,7 @@ impl Parser {
     }
 
     fn parse_function_return_type(&mut self) -> Option<ReturnType> {
-        if is_some_and_kind(self.peek(), TokenKind::MinusGreater) {
+        if is_some_and_kind(&self.peek(), TokenKind::MinusGreater) {
             let small_arrow_token = self.parse_token();
             let type_kind = self.parse_type();
             Some(ReturnType{ small_arrow_token, type_kind })
@@ -229,11 +284,11 @@ impl Parser {
     fn parse_parameters(&mut self) -> Vec<Parameter> {
         let mut parameters = Vec::<Parameter>::new();
 
-        while is_some_and_kind(self.peek(), TokenKind::Identifier) {
+        while is_some_and_kind(&self.peek(), TokenKind::Identifier) {
             let identifier = self.parse_identifier();
             let type_id = self.parse_type_id().unwrap();
             
-            let comma_token = if is_some_and_kind(self.peek(), TokenKind::Comma) {
+            let comma_token = if is_some_and_kind(&self.peek(), TokenKind::Comma) {
                 Some(self.parse_token())
             }
             else {
@@ -249,7 +304,7 @@ impl Parser {
     fn parse_var_definition(&mut self) -> Stat {
         let let_token = self.parse_token();
 
-        let mut_token = if is_some_and_kind(self.peek(), TokenKind::MutKeyword) {
+        let mut_token = if is_some_and_kind(&self.peek(), TokenKind::MutKeyword) {
             Some(self.parse_token())
         } 
         else { 
@@ -266,7 +321,7 @@ impl Parser {
     }
 
     fn parse_equals_value(&mut self) -> Option<EqualsValue> {
-        if !is_some_and_some_kind(self.peek(), ASSIGNMENT_TOKENS.iter()) {
+        if !is_some_and_some_kind(&self.peek(), ASSIGNMENT_TOKENS.iter()) {
             return None;
         }
 
@@ -281,6 +336,7 @@ impl Parser {
         if INT_TYPES.contains(&identifier.identifier.token.value.as_str()) 
         || FLOAT_TYPES.contains(&identifier.identifier.token.value.as_str()) 
         || STRING_TYPES.contains(&identifier.identifier.token.value.as_str())
+        || CHAR_TYPES.contains(&identifier.identifier.token.value.as_str())
         || BOOL_TYPES.contains(&identifier.identifier.token.value.as_str()) {
             TypeKind::Internal{identifier}
         }
@@ -290,6 +346,81 @@ impl Parser {
     }
 
     fn parse_expression(&mut self) -> Expr {
+        self.parse_expression_bp(0)
+    }
+
+    fn parse_expression_bp(&mut self, min_bp: u8) -> Expr {
+        // for more information: https://en.wikipedia.org/wiki/Operator-precedence_parser
+        // based on: https://matklad.github.io/2020/04/13/simple-but-powerful-pratt-parsing.html
+
+        let mut lhs = if is_operator(&self.peek()) {
+            let op = self.parse_token();
+            let ((), r_bp) = prefix_binding_power(op.token.kind);
+            let rhs = self.parse_expression_bp(r_bp);
+            bake_unary_expression(op, rhs)
+        }
+        else if is_some_and_kind(&self.peek(), TokenKind::LParen) {
+            let lparen = self.parse_token();
+            let expr = self.parse_expression_bp(0);
+            let rparen = self.parse_expected_token(TokenKind::RParen);
+
+            decorate_expression(lparen, rparen, expr)
+        }
+        else {
+            self.parse_expression_atom()
+        };
+        
+        loop {
+            if !is_operator(&self.peek()) {
+                break;
+            }
+
+            if let Some((l_bp, ())) = postfix_binding_power(self.peek().unwrap().kind) {
+                if l_bp < min_bp {
+                    break;
+                }
+
+                let op = self.parse_token();
+
+                lhs = if op.token.kind == TokenKind::LBracket 
+                        || op.token.kind == TokenKind::QuestionLBracket {
+                    let lbracket = op;
+                    let expr = self.parse_expression_bp(0);
+                    let rbracket = self.parse_expected_token(TokenKind::RBracket);
+                    Expr::Index{ lhs: Box::new(lhs), lbracket, expr: Box::new(expr), rbracket }
+                } else {
+                    bake_unary_expression(op, lhs)
+                };
+                continue;
+            }
+
+            if let Some((l_bp, r_bp)) = infix_binding_power(self.peek().unwrap().kind) {
+                if l_bp < min_bp { 
+                    break;
+                }
+                
+                let op = self.parse_token();
+                
+                lhs = if op.token.kind == TokenKind::Question {
+                let mhs = self.parse_expression_bp(0);
+                let op2 = self.parse_expected_token(TokenKind::Colon);
+                let rhs = self.parse_expression_bp(r_bp);
+                bake_ternary_expression(lhs, op, mhs, op2, rhs)
+                } else {
+                    let rhs = self.parse_expression_bp(r_bp);
+                    bake_binary_expression(lhs, op, rhs)
+                };
+                
+                continue;
+            }
+            
+            break;
+        }
+
+        lhs
+    }
+
+    fn parse_expression_atom(&mut self) -> Expr {
         if let Some(expr) = self.peek() {
             match expr.kind {
                 TokenKind::NumberLiteral{..} =>
@@ -300,7 +431,7 @@ impl Parser {
                     Expr::Literal{ kind: LiteralKind::Char{ char_literal: self.parse_token() } },
                 TokenKind::TrueKeyword | TokenKind::FalseKeyword =>
                     Expr::Literal{ kind: LiteralKind::Bool{ bool_literal: self.parse_token() } },
-                _ => panic!("unknown expression type"),
+                _ => panic!("unknown expression type {:?}", expr),
             }
         }
         else {
@@ -313,7 +444,7 @@ impl Parser {
     }
 
     fn parse_type_id(&mut self) -> Option<TypeId> {
-        if !is_some_and_kind(self.peek(), TokenKind::Colon) {
+        if !is_some_and_kind(&self.peek(), TokenKind::Colon) {
             return None;
         }
         let colon_token = self.parse_token();
@@ -326,7 +457,7 @@ impl Parser {
     }
 
     fn parse_expected_token(&mut self, expected_kind: TokenKind) -> SyntaxToken {
-        if is_some_and_kind(self.peek(), expected_kind) {
+        if is_some_and_kind(&self.peek(), expected_kind) {
             self.parse_token()
         }
         else {
@@ -361,16 +492,118 @@ impl Parser {
     }
 }
 
-fn is_some_and_kind(token: Option<Token>, kind: TokenKind) -> bool {
-    token.is_some() && token.unwrap().kind == kind
+fn is_some_and_kind(token: &Option<Token>, kind: TokenKind) -> bool {
+    token.is_some() && token.as_ref().unwrap().kind == kind
 }
 
-fn is_some_and_some_kind<'a>(token: Option<Token>, mut kinds: impl Iterator<Item = &'a TokenKind>) -> bool {
+fn is_some_and_some_kind<'a>(token: &Option<Token>, kinds: impl Iterator<Item = &'a TokenKind>) -> bool {
     if token.is_none() {
         return false;
     }
 
-    let token = token.unwrap();
-    kinds.any(|kind| token.kind == *kind)
+    is_some_kind(token.as_ref().unwrap().kind ,kinds)
 }
 
+fn is_some_kind<'a>(kind: TokenKind, mut kinds: impl Iterator<Item = &'a TokenKind>) -> bool {
+    kinds.any(|k| kind == *k)
+}
+
+fn is_operator(token: &Option<Token>) -> bool {
+    is_some_and_some_kind(token, OPERATORS.iter())
+}
+
+fn prefix_binding_power(kind: TokenKind) -> ((), u8) {
+    match kind {
+        TokenKind::MinusMinus
+        | TokenKind::PlusPlus
+        | TokenKind::Plus
+        | TokenKind::Minus
+        | TokenKind::Tilde
+        | TokenKind::Bang => ((), 29),
+        _ => panic!("unknown operator: {:?}", kind),
+    }
+}
+
+fn infix_binding_power(kind: TokenKind) -> Option<(u8, u8)> {
+    match kind {        
+        TokenKind::QuestionDot
+        | TokenKind::Dot
+        | TokenKind::ColonColon => Some((32, 31)),
+
+        TokenKind::DotDot
+        | TokenKind::DotDotEqual => Some((28, 27)),
+
+        TokenKind::Star 
+        | TokenKind::Slash
+        | TokenKind::Percent => Some((25, 26)),
+
+        TokenKind::Plus 
+        | TokenKind::Minus => Some((23, 24)),
+
+        TokenKind::LessLess
+        | TokenKind::GreaterGreater => Some((21, 22)),
+
+        TokenKind::Greater
+        | TokenKind::Less
+        | TokenKind::GreaterEqual
+        | TokenKind::LessEqual => Some((19, 20)),
+
+        TokenKind::EqualEqual
+        | TokenKind::BangEqual => Some((17, 18)),
+
+        TokenKind::Amp => Some((15, 16)),
+        
+        TokenKind::Caret => Some((13, 14)),
+
+        TokenKind::Bar => Some((11, 12)),
+
+        TokenKind::AmpAmp => Some((9, 10)),
+
+        TokenKind::BarBar => Some((7, 8)),
+
+        TokenKind::QuestionQuestion => Some((6, 5)),  
+
+        TokenKind::Question => Some((4, 3)),  
+
+        TokenKind::Equal
+        | TokenKind::PlusEqual
+        | TokenKind::MinusEqual
+        | TokenKind::PercentEqual
+        | TokenKind::StarEqual
+        | TokenKind::SlashEqual
+        | TokenKind::AmpEqual 
+        | TokenKind::BarEqual
+        | TokenKind::LessLessEqual
+        | TokenKind::GreaterGreaterEqual
+        | TokenKind::QuestionQuestionEquals
+        | TokenKind::CaretEqual
+        | TokenKind::TildeEqual => Some((2, 1)),
+        _ => None,
+    }
+}
+
+fn postfix_binding_power(kind: TokenKind) -> Option<(u8, ())> {
+    match kind {
+        TokenKind::MinusMinus
+        | TokenKind::PlusPlus
+        | TokenKind::QuestionLBracket
+        | TokenKind::LBracket => Some((30, ())),
+        _ => None,
+    }
+}
+
+fn bake_ternary_expression(lhs: Expr, op1: SyntaxToken, mhs: Expr, op2: SyntaxToken, rhs: Expr) -> Expr {
+    Expr::Ternary{ lhs: Box::new(lhs), op1, mhs: Box::new(mhs), op2, rhs: Box::new(rhs) }
+}
+
+fn bake_binary_expression(lhs: Expr, op: SyntaxToken, rhs: Expr) -> Expr {
+    Expr::Binary{ lhs: Box::new(lhs), op, rhs: Box::new(rhs) }
+}
+
+fn bake_unary_expression(op: SyntaxToken, operand: Expr) -> Expr {
+    Expr::Unary{ op, operand: Box::new(operand) }
+}
+
+fn decorate_expression(l: SyntaxToken, r: SyntaxToken, expr: Expr) -> Expr {
+    Expr::Decorated{ l, expr: Box::new(expr), r }
+}

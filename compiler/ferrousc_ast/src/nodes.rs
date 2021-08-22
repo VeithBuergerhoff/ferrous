@@ -3,10 +3,32 @@ use ferrousc_lexer::Token;
 #[derive(Debug)]
 pub enum Expr {
     Literal { kind: LiteralKind },
-    Range {
-        start: Box<Expr>,
-        range_specifier: SyntaxToken,
-        end: Box<Expr>,
+    Decorated {
+        l: SyntaxToken,
+        expr: Box<Expr>,
+        r: SyntaxToken,
+    },
+    Unary {
+        op: SyntaxToken,
+        operand: Box<Expr>,
+    },
+    Binary {
+        lhs: Box<Expr>,
+        op: SyntaxToken,
+        rhs: Box<Expr>,
+    },
+    Index {
+        lhs: Box<Expr>,
+        lbracket: SyntaxToken,
+        expr: Box<Expr>,
+        rbracket: SyntaxToken,
+    },
+    Ternary {
+        lhs: Box<Expr>,
+        op1: SyntaxToken,
+        mhs: Box<Expr>,
+        op2: SyntaxToken,
+        rhs: Box<Expr>,
     },
 }
 
