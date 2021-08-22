@@ -464,7 +464,25 @@ impl Parser {
     }
 
     fn parse_argument_list(&mut self) -> ArgumentList {
-        todo!()
+        let mut arguments = Vec::<Argument>::new();
+        let l_paran = self.parse_token();
+        
+        while is_possible_expression(&self.peek()) {
+            let expr = self.parse_expression();
+            
+            let comma_token = if is_some_and_kind(&self.peek(), TokenKind::Comma) {
+                Some(self.parse_token())
+            }
+            else {
+                None
+            };
+            
+            arguments.push(Argument{ expr, comma_token });
+        }
+        
+        let r_paran = self.parse_expected_token(TokenKind::RParen);
+
+        ArgumentList { l_paran, arguments, r_paran}
     }
 
     fn parse_identifier(&mut self) -> Identifier {
@@ -645,4 +663,4 @@ fn bake_unary_expression(op: SyntaxToken, operand: Expr) -> Expr {
 
 fn decorate_expression(l: SyntaxToken, r: SyntaxToken, expr: Expr) -> Expr {
     Expr::Decorated{ l, expr: Box::new(expr), r }
-}
+}                       

@@ -120,15 +120,15 @@ pub enum LiteralKind {
 
 #[derive(Debug)]
 pub struct ArgumentList {
-    pub lparan: SyntaxToken,
-    pub rparan: SyntaxToken,
+    pub l_paran: SyntaxToken,
+    pub r_paran: SyntaxToken,
     pub arguments: Vec<Argument>,
 }
 
 #[derive(Debug)]
 pub struct Argument {
     pub expr: Expr,
-    pub coma_token: Option<SyntaxToken>,
+    pub comma_token: Option<SyntaxToken>,
 }
 
 #[derive(Debug)]

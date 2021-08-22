@@ -4,6 +4,9 @@ use ferrousc_parser::generate_ast;
 
 const TEST_CODE: &str = r#"
 if 1 < 2 {
+    test();
+    test(5 + 3);
+    test(5, "Hello");
     test = 53;
 }
 
