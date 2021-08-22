@@ -8,6 +8,19 @@ pub enum Expr {
         expr: Box<Expr>,
         r: SyntaxToken,
     },
+    Index {
+        lhs: Box<Expr>,
+        lbracket: SyntaxToken,
+        expr: Box<Expr>,
+        rbracket: SyntaxToken,
+    },
+    IdentifierUsage {
+        identifier: Identifier,
+    },
+    Call {
+        identifier: Identifier,
+        argument_list: ArgumentList,
+    },
     Unary {
         op: SyntaxToken,
         operand: Box<Expr>,
@@ -16,12 +29,6 @@ pub enum Expr {
         lhs: Box<Expr>,
         op: SyntaxToken,
         rhs: Box<Expr>,
-    },
-    Index {
-        lhs: Box<Expr>,
-        lbracket: SyntaxToken,
-        expr: Box<Expr>,
-        rbracket: SyntaxToken,
     },
     Ternary {
         lhs: Box<Expr>,
@@ -40,6 +47,10 @@ pub enum Stat {
         identifier: Identifier,
         type_id: Option<TypeId>,
         initial_value: Option<EqualsValue>,
+        semicolon_token: SyntaxToken,
+    },
+    Expr {
+        expr: Expr,
         semicolon_token: SyntaxToken,
     },
     Block {        
@@ -105,6 +116,19 @@ pub enum LiteralKind {
     String { string_literal: SyntaxToken },
     Char { char_literal: SyntaxToken },
     Bool { bool_literal: SyntaxToken },
+}
+
+#[derive(Debug)]
+pub struct ArgumentList {
+    pub lparan: SyntaxToken,
+    pub rparan: SyntaxToken,
+    pub arguments: Vec<Argument>,
+}
+
+#[derive(Debug)]
+pub struct Argument {
+    pub expr: Expr,
+    pub coma_token: Option<SyntaxToken>,
 }
 
 #[derive(Debug)]

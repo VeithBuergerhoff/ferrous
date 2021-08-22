@@ -4,14 +4,13 @@ use ferrousc_parser::generate_ast;
 
 const TEST_CODE: &str = r#"
 if 1 < 2 {
-
+    test = 53;
 }
 
 if !true == false {
 
 }
 
-// > 3 is gone
 if "string".2 > 3 {
 
 }
@@ -324,6 +323,24 @@ fn walk(st: &Stat, tab_index: i32) {
             walk(statement, tab_index + 2);
             indent_n(tab_index + 1);
             println!("}}");
+            indent_n(tab_index);
+            println!("}}");
+        },
+        Stat::Expr{
+            expr, 
+            semicolon_token,
+        } => {
+            indent_n(tab_index);
+            println!("Expression Statement {{");
+
+            indent_n(tab_index + 1);
+            println!("expression: {{");
+            print_expression(expr, tab_index + 2);
+            indent_n(tab_index + 1);
+            println!("}}");
+            
+            indent_n(tab_index + 1);
+            println!("semicolon_token: {:?}", semicolon_token);
             indent_n(tab_index);
             println!("}}");
         },

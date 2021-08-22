@@ -132,12 +132,10 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Stat {
         let next = self.peek();
-        /*  
+        
         if next.is_none() {
-            // TODO: early return some indication of end of tokens here!
-            return ---;
+            todo!("early return some indication of end of tokens here!");
         }
-        */
 
         match next.unwrap().kind {
             TokenKind::LetKeyword => self.parse_var_definition(),
@@ -148,6 +146,7 @@ impl Parser {
             TokenKind::WhileKeyword => self.parse_while_statement(),
             TokenKind::FunctionKeyword => self.parse_function_definition(),
             TokenKind::ForKeyword => self.parse_for_statement(),
+            _ if is_possible_expression(&self.peek()) => self.parse_expression_statement(),
             _ => {
                 let _unexpected_token = self.eat();
                 let statement = self.parse_statement();
@@ -165,7 +164,14 @@ impl Parser {
         let range = self.parse_expression();
         let statement = Box::new(self.parse_statement());
 
-        Stat::For{for_token, identifier, in_token, range, statement}
+        Stat::For{ for_token, identifier, in_token, range, statement }
+    }
+
+    fn parse_expression_statement(&mut self) -> Stat {
+        let expr = self.parse_expression();
+        let semicolon_token = self.parse_expected_token(TokenKind::Semicolon);
+
+        Stat::Expr{ expr, semicolon_token }
     }
 
     fn parse_return_statement(&mut self) -> Stat {        
@@ -431,12 +437,34 @@ impl Parser {
                     Expr::Literal{ kind: LiteralKind::Char{ char_literal: self.parse_token() } },
                 TokenKind::TrueKeyword | TokenKind::FalseKeyword =>
                     Expr::Literal{ kind: LiteralKind::Bool{ bool_literal: self.parse_token() } },
+                TokenKind::Identifier{..} => {
+                    let identifier = self.parse_identifier();
+                    
+                    if let Some(expr) = self.peek() {
+                        match expr.kind {
+                            TokenKind::LParen => self.parse_call(identifier),
+                            _ => Expr::IdentifierUsage{ identifier },
+                        }
+                    }
+                    else {
+                        panic!("unexpected end of stream")
+                    }
+                },
                 _ => panic!("unknown expression type {:?}", expr),
             }
         }
         else {
             panic!("unexpected end of stream")
         }
+    }
+
+    fn parse_call(&mut self, identifier: Identifier) -> Expr {
+        let argument_list = self.parse_argument_list();
+        Expr::Call{ identifier, argument_list }
+    }
+
+    fn parse_argument_list(&mut self) -> ArgumentList {
+        todo!()
     }
 
     fn parse_identifier(&mut self) -> Identifier {
@@ -510,6 +538,17 @@ fn is_some_kind<'a>(kind: TokenKind, mut kinds: impl Iterator<Item = &'a TokenKi
 
 fn is_operator(token: &Option<Token>) -> bool {
     is_some_and_some_kind(token, OPERATORS.iter())
+}
+
+fn is_possible_expression(token: &Option<Token>) -> bool {
+    token.is_some() && 
+    (is_some_kind(token.as_ref().unwrap().kind, OPERATORS.iter()) 
+    || matches!(token.as_ref().unwrap().kind, TokenKind::StringLiteral{..} 
+                                    | TokenKind::CharLiteral{..} 
+                                    | TokenKind::NumberLiteral{..} 
+                                    | TokenKind::TrueKeyword 
+                                    | TokenKind::FalseKeyword
+                                    | TokenKind::Identifier))
 }
 
 fn prefix_binding_power(kind: TokenKind) -> ((), u8) {
