@@ -12,6 +12,7 @@ Roadmap (not ordered):
 - [x] Build a [Lexer](https://en.wikipedia.org/wiki/Lexical_analysis)
 - [ ] Build a [Parser](https://en.wikipedia.org/wiki/Parsing) (WIP)
 - [ ] Build an [Optimizer](https://en.wikipedia.org/wiki/Optimizing_compiler)
+- [ ] Build a [Type checker](https://en.wikipedia.org/wiki/Type_system)
 - [ ] Emit [LLVM IL](https://llvm.org/docs/LangRef.html)
 - [ ] Emit [Cranelift IL](https://github.com/bytecodealliance/wasmtime/tree/main/cranelift)
 - [ ] Emit custom assembly code similar to [Java bytecode](https://en.wikipedia.org/wiki/Java_bytecode)
