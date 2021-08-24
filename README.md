@@ -5,9 +5,6 @@ I learned the basics of Rust in three days and simply looked at other projects f
 
 The basic project structure and the structure of the lexer was heavily inspired by [the official rust repository](https://github.com/rust-lang/rust). 
 
-I did think about streaming, but I'm too shy and English is not my first language (although I am quite proficient.)
-If I get a sufficient amount of requests to stream, I might reconsider.
-
 Roadmap (not ordered):
 - [x] Build a [Lexer](https://en.wikipedia.org/wiki/Lexical_analysis)
 - [ ] Build a [Parser](https://en.wikipedia.org/wiki/Parsing) (WIP)
@@ -26,3 +23,7 @@ Roadmap (not ordered):
 # Contributing
 If you spot mistakes, bugs, bad practice, or simply want to help out, feel free to open an Issue. 
 Pull requests are also welcome, but do try to keep them short.
+
+# Additionally
+I did think about streaming, but I'm quite shy and English is not my first language (although I am quite proficient.)
+If I get a sufficient amount of requests to stream, I might reconsider.
