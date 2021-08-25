@@ -1,89 +1,28 @@
+use std::fs;
+
 use ferrousc_ast::nodes::{Expr, FunctionBody, Stat};
 use ferrousc_lexer::tokenize;
 use ferrousc_parser::generate_ast;
 
-const TEST_CODE: &str = r#"
-let test = [5, "hi"];
+static TEST_CODE: &str = "./test_code.fe";
 
-if 1 < 2 {
-    test();
-    test(5 + 3);
-    test(5, "Hello");
-    test = 53;
+fn read_file(filename: &str) -> String {
+    fs::read_to_string(filename).expect(&format!("could not read file with name: {}", filename))
 }
-
-if !true == false {
-
-}
-
-if "string".2 > 3 {
-
-}
-
-if "test"[5] < 8 {
-
-}
-
-for n in 0..5 {
-
-}
-
-let mut test1: aha = 525.52;
-let test2 = "test string";
-let test3 = 'c';
-let test4 = false;
-{}
-
-for v in 25 {
-
-}
-
-fn test(a: bool, b: bool) {
-    return 5;
-}
-
-fn test(a: bool, b: bool) => return 5;
-
-fn are_equal(a: bool, b: bool) -> bool {
-    return false;
-}
-
-while true {
-
-}
-
-if 2 {
-
-}
-else if 5 {
-}
-else {
-    return;
-    return 5;
-    break;
-}
-
-{
-    let test = 2;
-    {
-        let test = 56;
-    }
-}
-"#;
 
 pub fn run() {
-    generate_ast(tokenize(TEST_CODE));
+    generate_ast(tokenize(&read_file(TEST_CODE)));
 }
 
 pub fn print() {
     println!();
-
-    for token in tokenize(TEST_CODE) {
+    let test_code = read_file(TEST_CODE);
+    for token in tokenize(&test_code) {
         println!("{:?}", token);
     }
     println!();
-
-    let ast = generate_ast(tokenize(TEST_CODE));
+    
+    let ast = generate_ast(tokenize(&test_code));
 
     println!("{:?}", ast);
     println!();
@@ -91,7 +30,8 @@ pub fn print() {
     ast.walk(|st|{
         walk(st, 0);
         println!();
-    })
+    })    
+
 }
 
 fn walk(st: &Stat, tab_index: i32) {

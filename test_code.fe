@@ -1,0 +1,67 @@
+let test = [5, "hi"];
+
+if 1 < 2 {
+    test();
+    test(5 + 3);
+    test(5, "Hello");
+    test = 53;
+}
+
+if !true == false {
+
+}
+
+if "string".2 > 3 {
+
+}
+
+if "test"[5] < 8 {
+
+}
+
+for n in 0..5 {
+
+}
+
+let mut test1: aha = 525.52;
+let test2 = "test string";
+let test3 = 'c';
+let test4 = false;
+{}
+
+for v in 25 {
+
+}
+
+fn test(a: bool, b: bool) {
+    return 5;
+}
+
+fn test(a: bool, b: bool) => return 5;
+fn test(a: bool, b: bool) -> int => return 5;
+
+fn are_equal(a: bool, b: bool) -> bool {
+    return false;
+}
+
+while true {
+
+}
+
+if 2 {
+
+}
+else if 5 {
+}
+else {
+    return;
+    return 5;
+    break;
+}
+
+{
+    let test = 2;
+    {
+        let test = 56;
+    }
+}
