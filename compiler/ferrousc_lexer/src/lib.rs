@@ -2,6 +2,9 @@ use cursor::Cursor;
 
 mod cursor;
 
+#[cfg(test)]
+mod tests;
+
 const WHITESPACE_CHARS: [char; 23] = [
     ' ',        // space
     '\t',       // tab
