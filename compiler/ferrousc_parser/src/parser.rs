@@ -514,6 +514,7 @@ impl Parser {
             | TokenKind::CharLiteral{..}
             | TokenKind::FalseKeyword 
             | TokenKind::TrueKeyword => MatchPattern::Literal(self.parse_token()),
+            TokenKind::Identifier => MatchPattern::Identifier(self.parse_identifier()),
             _ => panic!("unexpected token found when trying to parse match pattern {:?}", self.peek()),
         };
 
@@ -633,7 +634,8 @@ fn is_possible_match_arm(token: &Option<Token>) -> bool {
         | TokenKind::NumberLiteral{..}
         | TokenKind::CharLiteral{..}
         | TokenKind::FalseKeyword 
-        | TokenKind::TrueKeyword)
+        | TokenKind::TrueKeyword
+        | TokenKind::Identifier)
 }
 
 fn is_operator(token: &Option<Token>) -> bool {

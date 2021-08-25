@@ -159,6 +159,7 @@ pub struct MatchArm {
 #[derive(Debug)]
 pub enum MatchPattern {
     Literal(SyntaxToken),
+    Identifier(Identifier),
 }
 
 #[derive(Debug)]
