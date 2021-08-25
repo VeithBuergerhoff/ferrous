@@ -22,6 +22,11 @@ pub enum Expr {
     IdentifierUsage {
         identifier: Identifier,
     },
+    Match {
+        match_token: SyntaxToken,
+        expr: Box<Expr>,
+        body: MatchBody,
+    },
     Call {
         identifier: Identifier,
         argument_list: ArgumentList,
@@ -134,6 +139,26 @@ pub struct ArgumentList {
     pub l_paran: SyntaxToken,
     pub r_paran: SyntaxToken,
     pub arguments: Vec<Argument>,
+}
+
+#[derive(Debug)]
+pub struct MatchBody {
+    pub l_brace: SyntaxToken,
+    pub r_brace: SyntaxToken,
+    pub arms: Vec<MatchArm>,
+}
+
+#[derive(Debug)]
+pub struct MatchArm {
+    pub pattern: MatchPattern,
+    pub fat_arrow: SyntaxToken,
+    pub expr: Expr,
+    pub comma_token: Option<SyntaxToken>,
+}
+
+#[derive(Debug)]
+pub enum MatchPattern {
+    Literal(SyntaxToken),
 }
 
 #[derive(Debug)]

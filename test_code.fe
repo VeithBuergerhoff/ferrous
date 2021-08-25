@@ -1,5 +1,14 @@
 let test = [5, "hi"];
 
+match call_func() {
+    5 => "awesome sauce",
+};
+
+let result = match call_func_too() {
+    5 => "awesome sauce 5",
+    7 => "awesome sauce 7",
+};
+
 if 1 < 2 {
     test();
     test(5 + 3);

@@ -441,7 +441,7 @@ impl Parser {
                 TokenKind::TrueKeyword | TokenKind::FalseKeyword =>
                     Expr::Literal{ kind: LiteralKind::Bool{ bool_literal: self.parse_token() } },
                 TokenKind::LBracket => self.parse_array_initializer(),
-                
+                TokenKind::MatchKeyword => self.parse_match_expression(),
                 TokenKind::Identifier{..} => {
                     let identifier = self.parse_identifier();
                     
@@ -486,6 +486,51 @@ impl Parser {
         Expr::ArrayInitializer{ lbracket, items, rbracket }
     }
 
+    fn parse_match_expression(&mut self) -> Expr {
+        let match_token = self.parse_token();
+        let expr = Box::new(self.parse_expression());
+        let body = self.parse_match_body();
+        
+        Expr::Match{ match_token, expr, body }
+    }
+
+    fn parse_match_body(&mut self) -> MatchBody {
+        let mut arms = Vec::<MatchArm>::new();
+        let l_brace = self.parse_token();
+
+        while is_possible_match_arm(&self.peek()) {
+            arms.push(self.parse_match_arm());
+        }
+
+        let r_brace = self.parse_expected_token(TokenKind::RBrace);
+
+        MatchBody{ l_brace, r_brace, arms }
+    }
+
+    fn parse_match_arm(&mut self) -> MatchArm {
+        let pattern = match self.peek().as_ref().unwrap().kind {
+            TokenKind::StringLiteral{..}
+            | TokenKind::NumberLiteral{..}
+            | TokenKind::CharLiteral{..}
+            | TokenKind::FalseKeyword 
+            | TokenKind::TrueKeyword => MatchPattern::Literal(self.parse_token()),
+            _ => panic!("unexpected token found when trying to parse match pattern {:?}", self.peek()),
+        };
+
+        let fat_arrow = self.parse_expected_token(TokenKind::EqualsGreater);
+
+        let expr = self.parse_expression();
+
+        let comma_token = if is_some_and_kind(&self.peek(), TokenKind::Comma) {
+            Some(self.parse_token())
+        }
+        else {
+            None
+        };
+
+        MatchArm{ pattern, fat_arrow, expr, comma_token }
+    }
+
     fn parse_call(&mut self, identifier: Identifier) -> Expr {
         let argument_list = self.parse_argument_list();
         Expr::Call{ identifier, argument_list }
@@ -521,6 +566,7 @@ impl Parser {
         if !is_some_and_kind(&self.peek(), TokenKind::Colon) {
             return None;
         }
+
         let colon_token = self.parse_token();
         let type_kind = self.parse_type();
         Some(TypeId{ colon_token, type_kind })
@@ -575,11 +621,19 @@ fn is_some_and_some_kind<'a>(token: &Option<Token>, kinds: impl Iterator<Item = 
         return false;
     }
 
-    is_some_kind(token.as_ref().unwrap().kind ,kinds)
+    is_some_kind(token.as_ref().unwrap().kind, kinds)
 }
 
 fn is_some_kind<'a>(kind: TokenKind, mut kinds: impl Iterator<Item = &'a TokenKind>) -> bool {
     kinds.any(|k| kind == *k)
+}
+
+fn is_possible_match_arm(token: &Option<Token>) -> bool {
+    token.is_some() && matches!(token.as_ref().unwrap().kind, TokenKind::StringLiteral{..}
+        | TokenKind::NumberLiteral{..}
+        | TokenKind::CharLiteral{..}
+        | TokenKind::FalseKeyword 
+        | TokenKind::TrueKeyword)
 }
 
 fn is_operator(token: &Option<Token>) -> bool {
@@ -594,6 +648,7 @@ fn is_possible_expression(token: &Option<Token>) -> bool {
                                     | TokenKind::NumberLiteral{..} 
                                     | TokenKind::TrueKeyword 
                                     | TokenKind::FalseKeyword
+                                    | TokenKind::MatchKeyword
                                     | TokenKind::Identifier))
 }
 
