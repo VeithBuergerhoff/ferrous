@@ -612,11 +612,14 @@ impl Cursor<'_> {
     fn lex_decimal(&mut self, c: &char) -> Token {
         let mut lexeme = String::from(*c);
         let mut had_dot = false;
-        // todo: scientific notation for floating point
         loop {
             match self.peek() {
                 '_' | '0'..='9' => lexeme.push(self.eat()),
                 '.' if !had_dot => {
+                    if !(matches!(self.peek_n(1), '0'..='9') || (self.peek_n(1) == '_' && matches!(self.peek_n(2), '0'..='9'))) {
+                        // "4." must be folled by a number or a _ followed by a number
+                        break;
+                    }
                     if self.peek_n(1) == '.' {
                         // it's range operator dot and not a decimal dot
                         break;
