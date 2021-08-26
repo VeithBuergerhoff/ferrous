@@ -544,16 +544,16 @@ impl Cursor<'_> {
         let mut lexeme = String::from(*char);
         let mut terminated = false;
 
-        if self.peek() != '\'' && !self.is_eof()  {
-            if self.peek() == '\\' {
+        while self.peek() != '\'' && self.peek() != '\n' && self.peek() != '\r' && !self.is_eof() {
+            if self.peek() == '\\' && self.peek_n(1) == '\'' {
                 lexeme.push(self.eat());
             }
             lexeme.push(self.eat());
         }
 
-        if self.peek() == '\'' {
-            terminated = true;
+        if !self.is_eof() && self.peek() != '\n' && self.peek() != '\r' {
             lexeme.push(self.eat());
+            terminated = true;
         }
 
         let len = lexeme.chars().count();

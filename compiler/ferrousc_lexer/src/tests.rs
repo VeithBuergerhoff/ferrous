@@ -195,11 +195,12 @@ fn chars() {
             Token { kind: Newline, value: "\n", len: 1 }
             Token { kind: CharLiteral { terminated: true }, value: "'s'", len: 3 }
             Token { kind: Whitespace, value: " ", len: 1 }
-            Token { kind: CharLiteral { terminated: true }, value: "'\n'", len: 4 }
+            Token { kind: CharLiteral { terminated: true }, value: "'\\n'", len: 4 }
             Token { kind: Whitespace, value: " ", len: 1 }
-            Token { kind: CharLiteral { terminated: true }, value: "'\x'", len: 4 }
+            Token { kind: CharLiteral { terminated: true }, value: "'\\x'", len: 4 }
             Token { kind: Whitespace, value: " ", len: 1 }
-            Token { kind: CharLiteral { terminated: false }, value: "'too long'", len: 10 }
+            Token { kind: CharLiteral { terminated: true }, value: "'too long'", len: 10 }
+            Token { kind: Whitespace, value: " ", len: 1 }
             Token { kind: CharLiteral { terminated: true }, value: "'\\''", len: 4 }
             Token { kind: Whitespace, value: " ", len: 1 }
             Token { kind: CharLiteral { terminated: true }, value: "'\"'", len: 3 }
