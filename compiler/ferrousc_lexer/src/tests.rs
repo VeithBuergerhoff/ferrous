@@ -179,7 +179,7 @@ ends here" "testäù 幸験test"
             Token { kind: Whitespace, value: " ", len: 1 }
             Token { kind: StringLiteral { terminated: true }, value: "\"string with a newline\nends here\"", len: 33 }
             Token { kind: Whitespace, value: " ", len: 1 }
-            Token { kind: StringLiteral { terminated: true }, value: "\"testäù 幸験test\"", len: 14 }
+            Token { kind: StringLiteral { terminated: true }, value: "\"testäù 幸験test\"", len: 21 }
             Token { kind: Newline, value: "\n", len: 1 }
         "#]],
     )
@@ -189,7 +189,7 @@ ends here" "testäù 幸験test"
 fn chars() {
     check_lexing(
         r#"
-'s' '\n' '\x' 'too long' '\'' '"'
+'s' '\n' '\x' 'too long' '\'' '"' '幸'
 "#,
         expect![[r#"
             Token { kind: Newline, value: "\n", len: 1 }
@@ -204,6 +204,8 @@ fn chars() {
             Token { kind: CharLiteral { terminated: true }, value: "'\\''", len: 4 }
             Token { kind: Whitespace, value: " ", len: 1 }
             Token { kind: CharLiteral { terminated: true }, value: "'\"'", len: 3 }
+            Token { kind: Whitespace, value: " ", len: 1 }
+            Token { kind: CharLiteral { terminated: true }, value: "'幸'", len: 5 }
             Token { kind: Newline, value: "\n", len: 1 }
         "#]],
     )
@@ -233,10 +235,11 @@ _test test 1 _1 __1 a-ha a_ha äòtest testäù 幸験test TEST TestTest
             Token { kind: Whitespace, value: " ", len: 1 }
             Token { kind: Identifier, value: "a_ha", len: 4 }
             Token { kind: Whitespace, value: " ", len: 1 }
-            Token { kind: Identifier, value: "äòtest", len: 6 }
-            Token { kind: Identifier, value: "testäù", len: 6 }
-            Token { kind: Identifier, value: "幸験test", len: 6 }
-            Token { kind: Identifier, value: "st", len: 2 }
+            Token { kind: Identifier, value: "äòtest", len: 8 }
+            Token { kind: Whitespace, value: " ", len: 1 }
+            Token { kind: Identifier, value: "testäù", len: 8 }
+            Token { kind: Whitespace, value: " ", len: 1 }
+            Token { kind: Identifier, value: "幸験test", len: 10 }
             Token { kind: Whitespace, value: " ", len: 1 }
             Token { kind: Identifier, value: "TEST", len: 4 }
             Token { kind: Whitespace, value: " ", len: 1 }
@@ -268,6 +271,7 @@ fn comments() {
 /* 
     block multiline
 */
+// unicode 幸
 /* not terminated! // is a line comment
 ",
         expect![[r#"
@@ -306,6 +310,8 @@ fn comments() {
             Token { kind: Slash, value: "/", len: 1 }
             Token { kind: Newline, value: "\n", len: 1 }
             Token { kind: MultilineComment { terminated: true }, value: "/* \n    block multiline\n*/", len: 26 }
+            Token { kind: Newline, value: "\n", len: 1 }
+            Token { kind: LineComment, value: "// unicode 幸", len: 14 }
             Token { kind: Newline, value: "\n", len: 1 }
             Token { kind: MultilineComment { terminated: false }, value: "/* not terminated! // is a line comment\n", len: 40 }
         "#]],

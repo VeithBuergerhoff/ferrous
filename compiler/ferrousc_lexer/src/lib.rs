@@ -491,7 +491,7 @@ impl Cursor<'_> {
             None
         }
         else {
-            let len = lexeme.chars().count();
+            let len = lexeme.len();
             Some(Token::new(TokenKind::Whitespace, lexeme, len))
         }
     }
@@ -536,7 +536,7 @@ impl Cursor<'_> {
             terminated = true;
         }
 
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::StringLiteral{terminated}, lexeme, len)
     }
 
@@ -556,7 +556,7 @@ impl Cursor<'_> {
             terminated = true;
         }
 
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::CharLiteral{terminated}, lexeme, len)
     }
 
@@ -585,7 +585,7 @@ impl Cursor<'_> {
             }
         }
 
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::NumberLiteral{base: Base::Binary, has_digits}, lexeme, len)
     }
 
@@ -605,7 +605,7 @@ impl Cursor<'_> {
             }
         }
 
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::NumberLiteral{base: Base::Octal, has_digits}, lexeme, len)
     }
 
@@ -631,7 +631,7 @@ impl Cursor<'_> {
             }
         }
 
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::NumberLiteral{base: Base::Decimal, has_digits: true}, lexeme, len)
     }
 
@@ -651,7 +651,7 @@ impl Cursor<'_> {
             }
         }
 
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::NumberLiteral{base: Base::Hexadecimal, has_digits}, lexeme, len)
     }
 
@@ -672,7 +672,7 @@ impl Cursor<'_> {
             }
         }
         
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::MultilineComment{terminated}, lexeme, len)
     }
 
@@ -680,15 +680,12 @@ impl Cursor<'_> {
         self.eat();
         let mut lexeme = "//".to_owned();
         lexeme.push_str(&self.lex_to_eol());
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(TokenKind::LineComment, lexeme, len)
     }
 
     fn lex_identifier(&mut self, char: &char) -> Token {
         let mut lexeme = String::from(*char);
-
-        // todo: _ is another kind of token and _ has to be 
-        // followed by a literal or number to be a valid identifier
 
         while is_literal(&self.peek()) {
             lexeme.push(self.eat());
@@ -699,7 +696,7 @@ impl Cursor<'_> {
             kind = keyword;
         }
 
-        let len = lexeme.chars().count();
+        let len = lexeme.len();
         Token::new(kind, lexeme, len)
     }
 }
