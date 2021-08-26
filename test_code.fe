@@ -1,5 +1,8 @@
 let test = [5, "hi"];
 
+let test: i32 = 5_i32;
+let test: i32 = 5i32;
+
 match call_func() {
     5 => "awesome sauce",
 };

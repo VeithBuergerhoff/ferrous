@@ -432,14 +432,46 @@ impl Parser {
     fn parse_expression_atom(&mut self) -> Expr {
         if let Some(expr) = self.peek() {
             match expr.kind {
-                TokenKind::NumberLiteral{..} =>
-                    Expr::Literal{ kind: LiteralKind::Number{ number_literal: self.parse_token() } },
-                TokenKind::StringLiteral{..} => 
-                    Expr::Literal{ kind: LiteralKind::String{ string_literal: self.parse_token() } },
-                TokenKind::CharLiteral{..} =>
-                    Expr::Literal{ kind: LiteralKind::Char{ char_literal: self.parse_token() } },
-                TokenKind::TrueKeyword | TokenKind::FalseKeyword =>
-                    Expr::Literal{ kind: LiteralKind::Bool{ bool_literal: self.parse_token() } },
+                TokenKind::NumberLiteral{..} => {
+                    let number_literal =  self.parse_token();
+                    let type_kind = if is_some_and_kind(&self.peek(), TokenKind::Identifier) {
+                        Some(self.parse_type())
+                    }
+                    else {
+                        None
+                    };
+                    Expr::Literal{ kind: LiteralKind::Number{ number_literal }, type_kind }
+                },
+                TokenKind::StringLiteral{..} => {
+                    let string_literal =  self.parse_token();
+                    let type_kind = if is_some_and_kind(&self.peek(), TokenKind::Identifier) {
+                        Some(self.parse_type())
+                    }
+                    else {
+                        None
+                    };
+                    Expr::Literal{ kind: LiteralKind::String{ string_literal }, type_kind }
+                },
+                TokenKind::CharLiteral{..} => {
+                    let char_literal =  self.parse_token();
+                    let type_kind = if is_some_and_kind(&self.peek(), TokenKind::Identifier) {
+                        Some(self.parse_type())
+                    }
+                    else {
+                        None
+                    };
+                    Expr::Literal{ kind: LiteralKind::Char{ char_literal }, type_kind }
+                },
+                TokenKind::TrueKeyword | TokenKind::FalseKeyword => {
+                    let bool_literal =  self.parse_token();
+                    let type_kind = if is_some_and_kind(&self.peek(), TokenKind::Identifier) {
+                        Some(self.parse_type())
+                    }
+                    else {
+                        None
+                    };
+                    Expr::Literal{ kind: LiteralKind::Bool{ bool_literal }, type_kind }
+                },
                 TokenKind::LBracket => self.parse_array_initializer(),
                 TokenKind::MatchKeyword => self.parse_match_expression(),
                 TokenKind::Identifier{..} => {

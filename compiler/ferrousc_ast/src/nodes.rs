@@ -2,7 +2,10 @@ use ferrousc_lexer::Token;
 
 #[derive(Debug)]
 pub enum Expr {
-    Literal { kind: LiteralKind },
+    Literal { 
+        kind: LiteralKind,  
+        type_kind: Option<TypeKind>,
+    },
     Decorated {
         l: SyntaxToken,
         expr: Box<Expr>,
