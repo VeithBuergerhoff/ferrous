@@ -360,7 +360,7 @@ impl Cursor<'_> {
                 },
                 _ => Token::new(TokenKind::Greater, ">".to_owned(), 1),
             },
-            '<'=> match self.peek() {
+            '<' => match self.peek() {
                 '=' => {
                     self.eat();
                     Token::new(TokenKind::LessEqual, "<=".to_owned(), 2)
@@ -377,7 +377,7 @@ impl Cursor<'_> {
                 },
                 _ => Token::new(TokenKind::Less, "<".to_owned(), 1),
             },
-            '?'=> match self.peek() {
+            '?' => match self.peek() {
                 '?' => {
                     self.eat();
                     match self.peek() {

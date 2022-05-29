@@ -1,5 +1,5 @@
 [package]
-name = "ferrousc_main"
+name = "ferrousc_llvm"
 version = "0.1.0"
 edition = "2018"
 
@@ -7,4 +7,4 @@ edition = "2018"
 ferrousc_lexer = { path = "../ferrousc_lexer" }
 ferrousc_parser = { path = "../ferrousc_parser" }
 ferrousc_ast = { path = "../ferrousc_ast" }
-ferrousc_llvm = { path = "../ferrousc_llvm" }
+llvm-sys = "100"

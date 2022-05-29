@@ -1,7 +1,7 @@
 use std::time::Instant;
 
 fn main() {
-    ferrousc_main::print();
+    //ferrousc_main::print();
     
     let now = Instant::now();
     ferrousc_main::run();

@@ -11,7 +11,9 @@ fn read_file(filename: &str) -> String {
 }
 
 pub fn run() {
-    generate_ast(tokenize(&read_file(TEST_CODE)));
+    //generate_ast(tokenize(&read_file(TEST_CODE)));
+
+    ferrousc_llvm::run();
 }
 
 pub fn print() {
@@ -30,8 +32,7 @@ pub fn print() {
     ast.walk(|st|{
         walk(st, 0);
         println!();
-    })    
-
+    })
 }
 
 fn walk(st: &Stat, tab_index: i32) {
